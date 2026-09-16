@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap">
+  <style>
+    :root{
+      --blue:#0E87FE; --blue-dark:#0A6BCB; --blue-tint:#E7F2FF;
+      --purple:#8B5CF6; --purple-tint:#F1EBFF;
+      --orange:#F97316; --orange-tint:#FFEEE2;
+      --green:#16A34A; --green-tint:#E6F7EC;
+      --red:#EF4444; --red-tint:#FDEAEA;
+      --ink:#0F172A; --ink-soft:#475569; --ink-mute:#94A3B8;
+      --line:#E7EBF1; --panel:#FFFFFF; --shell:#111827;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:'Manrope',system-ui,sans-serif;color:var(--ink);}
+    a{color:var(--blue);text-decoration:none;}
+    a:hover{color:var(--blue-dark);}
+    .label{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);}
+    .navitem{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--ink-soft);}
+    .navitem.active{background:var(--blue-tint);color:var(--blue-dark);}
+    .navitem svg{flex:0 0 auto;}
+    .tag{display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.02em;padding:3px 8px;border-radius:999px;}
+    .btn-primary{background:var(--blue);color:#fff;font-weight:700;font-size:13px;padding:9px 16px;border-radius:8px;}
+    .btn-ghost{background:#fff;color:var(--ink-soft);font-weight:600;font-size:13px;padding:8px 14px;border-radius:8px;border:1px solid var(--line);}
+    .chip{font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--gray-100,#F1F5F9);padding:7px 12px;border-radius:999px;border:1px solid var(--line);display:inline-flex;align-items:center;gap:6px;}
+    .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;}
+    .avatar{width:26px;height:26px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:800;color:#fff;flex:0 0 auto;}
+  </style>
+</helmet>
+
+<div style="width:1440px;height:960px;background:linear-gradient(135deg,#DCEEFF 0%,#3E86E5 100%);padding:48px;position:relative;font-family:'Manrope',system-ui,sans-serif;">
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+    <div class="label" style="color:#0B4A8F;">/OVERVIEW &mdash; APPLICATIONS PIPELINE</div>
+    <div class="label" style="color:#0B4A8F;">01 / 06</div>
+  </div>
+
+  <div style="width:1344px;height:800px;background:var(--shell);border-radius:16px;padding:2px;">
+    <div style="width:100%;height:100%;background:#DCE3EA;border-radius:14px;padding:10px 14px 0 14px;">
+      <div style="display:flex;gap:6px;">
+        <div style="width:10px;height:10px;border-radius:999px;background:#FF5F57;"></div>
+        <div style="width:10px;height:10px;border-radius:999px;background:#FEBC2E;"></div>
+        <div style="width:10px;height:10px;border-radius:999px;background:#28C840;"></div>
+      </div>
+      <div style="width:100%;height:calc(100% - 10px);margin-top:10px;background:var(--panel);border-radius:10px 10px 0 0;display:flex;overflow:hidden;">
+
+        <!-- Sidebar -->
+        <div style="width:210px;flex:0 0 auto;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:22px;">
+          <div style="display:flex;align-items:center;gap:8px;padding:0 6px;">
+            <div style="width:22px;height:22px;border-radius:6px;background:var(--blue);"></div>
+            <div style="font-weight:800;font-size:14px;">HR Portal</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div class="navitem"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Dashboard</div>
+            <div class="navitem"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Jobs</div>
+            <div class="navitem active"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h6v14H4z"/><path d="M14 5h6v9h-6z"/></svg>Applications</div>
+            <div class="navitem"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c.8-3.4 3-5 5.5-5s4.7 1.6 5.5 5"/><circle cx="18" cy="9" r="2.4"/><path d="M15.8 20c.5-2.5 1.9-3.8 4-3.8"/></svg>Candidates</div>
+            <div class="navitem"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Interviews</div>
+            <div class="navitem"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>Reports</div>
+          </div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:2px;">
+            <div class="navitem"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 0 1-4 0v-.09a1.7 1.7 0 0 0-1-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 0 1 0-4h.09a1.7 1.7 0 0 0 1.56-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.55V3a2 2 0 0 1 4 0v.09a1.7 1.7 0 0 0 1 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.55 1H21a2 2 0 0 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1z"/></svg>Settings</div>
+          </div>
+        </div>
+
+        <!-- Main content -->
+        <div style="flex:1;padding:24px 28px;display:flex;flex-direction:column;gap:18px;min-width:0;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div style="font-size:20px;font-weight:800;">Applications</div>
+              <div style="font-size:13px;color:var(--ink-mute);margin-top:2px;">Frontend Engineer &middot; 26 candidates</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div class="chip">Job: Frontend Engineer</div>
+              <div class="chip">Score</div>
+              <div class="chip">Tags</div>
+              <div class="btn-ghost">Table view</div>
+              <div class="btn-primary">+ Add candidate</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;flex:1;min-height:0;">
+
+            <!-- New -->
+            <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:12.5px;font-weight:800;color:var(--ink-soft);">NEW</div>
+                <div style="font-size:11px;font-weight:700;color:var(--ink-mute);background:var(--line);padding:2px 7px;border-radius:999px;">8</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:#94A3B8;">JT</div><div><div style="font-size:13px;font-weight:700;">Jamie Tran</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--line);color:var(--ink-soft);">Public</span><span style="font-size:11px;color:var(--ink-mute);">2d ago</span></div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:#94A3B8;">RK</div><div><div style="font-size:13px;font-weight:700;">Rosa Kim</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--line);color:var(--ink-soft);">HR upload</span><span style="font-size:11px;color:var(--ink-mute);">1d ago</span></div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:#94A3B8;">DO</div><div><div style="font-size:13px;font-weight:700;">Diego Ortiz</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--line);color:var(--ink-soft);">Public</span><span style="font-size:11px;color:var(--ink-mute);">6h ago</span></div>
+              </div>
+            </div>
+
+            <!-- Screening -->
+            <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:12.5px;font-weight:800;color:var(--purple);">SCREENING</div>
+                <div style="font-size:11px;font-weight:700;color:var(--purple);background:var(--purple-tint);padding:2px 7px;border-radius:999px;">6</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:var(--purple);">AL</div><div><div style="font-size:13px;font-weight:700;">Amara Lewis</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--purple-tint);color:var(--purple);">Screening</span><span style="font-size:11px;font-weight:700;color:var(--ink-soft);">7.2</span></div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:var(--purple);">MP</div><div><div style="font-size:13px;font-weight:700;">Marco Pace</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--purple-tint);color:var(--purple);">Screening</span><span style="font-size:11px;font-weight:700;color:var(--ink-soft);">6.8</span></div>
+              </div>
+            </div>
+
+            <!-- Interview -->
+            <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:12.5px;font-weight:800;color:var(--orange);">INTERVIEW</div>
+                <div style="font-size:11px;font-weight:700;color:var(--orange);background:var(--orange-tint);padding:2px 7px;border-radius:999px;">4</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:var(--orange);">SN</div><div><div style="font-size:13px;font-weight:700;">Sofia Nardi</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--orange-tint);color:var(--orange);">Interview</span><span style="font-size:11px;font-weight:700;color:var(--ink-soft);">8.5</span></div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:var(--orange);">TW</div><div><div style="font-size:13px;font-weight:700;">Theo Walsh</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--orange-tint);color:var(--orange);">Interview</span><span style="font-size:11px;font-weight:700;color:var(--ink-soft);">7.9</span></div>
+              </div>
+            </div>
+
+            <!-- Offer -->
+            <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:12.5px;font-weight:800;color:var(--blue-dark);">OFFER</div>
+                <div style="font-size:11px;font-weight:700;color:var(--blue-dark);background:var(--blue-tint);padding:2px 7px;border-radius:999px;">2</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:var(--blue);">NC</div><div><div style="font-size:13px;font-weight:700;">Nadia Cho</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--blue-tint);color:var(--blue-dark);">Offer</span><span style="font-size:11px;font-weight:700;color:var(--ink-soft);">9.1</span></div>
+              </div>
+            </div>
+
+            <!-- Hired -->
+            <div style="display:flex;flex-direction:column;gap:10px;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-size:12.5px;font-weight:800;color:var(--green);">HIRED</div>
+                <div style="font-size:11px;font-weight:700;color:var(--green);background:var(--green-tint);padding:2px 7px;border-radius:999px;">1</div>
+              </div>
+              <div class="card">
+                <div style="display:flex;gap:8px;align-items:center;"><div class="avatar" style="background:var(--green);">EB</div><div><div style="font-size:13px;font-weight:700;">Elias Brandt</div><div style="font-size:11px;color:var(--ink-mute);">Frontend Engineer</div></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;"><span class="tag" style="background:var(--green-tint);color:var(--green);">Hired</span><span style="font-size:11px;font-weight:700;color:var(--ink-soft);">9.4</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
