@@ -148,26 +148,14 @@ export default function ApplyPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#F6F8FB',
+        width: '100%',
+        background: '#fff',
         fontFamily: 'system-ui, sans-serif',
-        padding: '48px 24px',
         display: 'flex',
         justifyContent: 'center',
       }}
     >
-      <div style={{ width: '100%', maxWidth: 720 }}>
-        <div
-          style={{
-            background: '#fff',
-            border: '1px solid #ECEEF3',
-            borderRadius: 16,
-            boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
-            padding: '48px 40px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 26,
-          }}
-        >
+      <div style={{ width: '100%', maxWidth: 720, padding: '56px 24px', display: 'flex', flexDirection: 'column', gap: 26 }}>
             <JobPageContent job={job} onApply={scrollToForm} />
 
             <div style={{ height: 1, background: '#E7EBF1' }} />
@@ -236,7 +224,6 @@ export default function ApplyPage() {
             By applying you agree your resume and details will be shared with our hiring team.
           </div>
         </form>
-        </div>
       </div>
     </div>
   )

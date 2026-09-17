@@ -40,22 +40,18 @@ export default function StatusPage() {
     <div
       style={{
         minHeight: '100vh',
-        background: '#F6F8FB',
+        width: '100%',
+        background: '#fff',
         fontFamily: 'system-ui, sans-serif',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'flex-start',
-        padding: '64px 24px',
       }}
     >
       <div
         style={{
-          width: 480,
-          background: '#fff',
-          border: '1px solid #ECEEF3',
-          borderRadius: 16,
-          boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 8px 24px rgba(15,23,42,0.06)',
-          padding: '40px 32px',
+          width: '100%',
+          maxWidth: 560,
+          padding: '64px 24px',
           display: 'flex',
           flexDirection: 'column',
           gap: 20,
