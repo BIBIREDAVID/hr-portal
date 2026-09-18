@@ -6,7 +6,7 @@ export const STAGES = ['new', 'screening', 'shortlisted', 'interview', 'offer', 
 // the keyword match score (Section "ATS ranking") can be computed
 // client-side without a second round trip.
 const APPLICATION_SELECT =
-  '*, candidate:candidates(id,name,email,phone,resume_url,source,resume_parsed), job:jobs(id,title,description,requirements,requirements_list)'
+  '*, candidate:candidates(id,name,email,phone,resume_url,source,resume_parsed), job:jobs(id,title,description,requirements,requirements_list,scorecard_template)'
 
 export async function listApplications(filters = {}) {
   let query = supabase.from('applications').select(APPLICATION_SELECT)
@@ -41,7 +41,7 @@ export async function getApplication(id) {
 export async function listApplicationsForCandidate(candidateId) {
   const { data, error } = await supabase
     .from('applications')
-    .select('*, job:jobs(id,title,department,description,requirements,requirements_list)')
+    .select('*, job:jobs(id,title,department,description,requirements,requirements_list,scorecard_template)')
     .eq('candidate_id', candidateId)
     .order('created_at', { ascending: false })
   if (error) throw error

@@ -8,13 +8,16 @@ import DashboardHome from './pages/dashboard'
 import JobsList from './pages/dashboard/jobs/JobsList'
 import JobForm from './pages/dashboard/jobs/JobForm'
 import ApplyPage from './pages/apply/ApplyPage'
+import JobsBoard from './pages/apply/JobsBoard'
 import StatusPage from './pages/status/StatusPage'
+import StatusLookupPage from './pages/status/StatusLookupPage'
 import ApplicationsList from './pages/dashboard/applications/ApplicationsList'
 import ApplicationRedirect from './pages/dashboard/applications/ApplicationRedirect'
 import CandidateDetail from './pages/dashboard/candidates/CandidateDetail'
 import ManualUpload from './pages/dashboard/candidates/ManualUpload'
 import InterviewsOverview from './pages/dashboard/interviews/InterviewsOverview'
 import EmailTriggersSettings from './pages/dashboard/settings/EmailTriggersSettings'
+import StaffSettings from './pages/dashboard/settings/StaffSettings'
 import ReportsPage from './pages/dashboard/reports/ReportsPage'
 import ComparePage from './pages/dashboard/applications/ComparePage'
 import CalendarPage from './pages/dashboard/calendar/CalendarPage'
@@ -26,7 +29,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/apply" element={<JobsBoard />} />
           <Route path="/apply/:jobId" element={<ApplyPage />} />
+          <Route path="/status" element={<StatusLookupPage />} />
           <Route path="/status/:token" element={<StatusPage />} />
 
           <Route
@@ -101,6 +106,14 @@ function App() {
               element={
                 <RequireRole roles={['admin', 'recruiter']}>
                   <EmailTriggersSettings />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="settings/staff"
+              element={
+                <RequireRole roles={['admin']}>
+                  <StaffSettings />
                 </RequireRole>
               }
             />

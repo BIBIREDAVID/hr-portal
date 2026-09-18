@@ -1,5 +1,19 @@
 import { supabase } from './supabaseClient'
 
+// Public careers listing — RLS (jobs_public_read_open) already restricts
+// anon reads to status = 'open', but filtering explicitly here too keeps
+// the query's intent obvious and avoids relying solely on RLS for it.
+export async function getOpenJobs() {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select('id, title, department, headline, locations, work_mode, created_at')
+    .eq('status', 'open')
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
 export async function getOpenJob(jobId) {
   const { data, error } = await supabase
     .from('jobs')

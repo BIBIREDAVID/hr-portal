@@ -79,6 +79,15 @@ const SETTINGS_ICON = (
   </>
 )
 
+const STAFF_ICON = (
+  <>
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </>
+)
+
 const SECTION_LABELS = {
   jobs: 'Jobs',
   applications: 'Applications',
@@ -112,11 +121,13 @@ export default function DashboardLayout() {
   const initial = staffUser?.name?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', background: '#F6F8FB' }}>
+    <div style={{ display: 'flex', height: '100vh', fontFamily: 'system-ui, sans-serif', background: '#F6F8FB' }}>
       <div
         style={{
           width: 232,
           flex: '0 0 auto',
+          height: '100vh',
+          overflowY: 'auto',
           borderRight: '1px solid #ECEEF3',
           background: '#fff',
           padding: '22px 14px',
@@ -141,6 +152,12 @@ export default function DashboardLayout() {
             <NavLink to="/dashboard/settings/email-triggers" style={linkStyle}>
               <Icon path={SETTINGS_ICON} />
               Settings
+            </NavLink>
+          )}
+          {staffUser?.role === 'admin' && (
+            <NavLink to="/dashboard/settings/staff" style={linkStyle}>
+              <Icon path={STAFF_ICON} />
+              Staff
             </NavLink>
           )}
         </nav>
@@ -188,9 +205,10 @@ export default function DashboardLayout() {
         </div>
       </div>
 
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, minWidth: 0, height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <div
           style={{
+            flex: '0 0 auto',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -212,7 +230,7 @@ export default function DashboardLayout() {
           </div>
           <NotificationsBell />
         </div>
-        <div style={{ flex: 1, minHeight: 0, padding: '4px 4px 0' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '4px 4px 0' }}>
           <Outlet />
         </div>
       </div>

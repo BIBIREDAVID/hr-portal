@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
     body.custom_field_responses && typeof body.custom_field_responses === 'object'
       ? body.custom_field_responses
       : {}
+  const sourceDetail = body.source_detail ? String(body.source_detail).slice(0, 500) : null
 
   if (!jobId || !name || !email || !resumePath) {
     return json({ error: 'job_id, name, email, and resume_path are required' }, 400)
@@ -152,6 +153,7 @@ Deno.serve(async (req) => {
       candidate_id: candidateId,
       job_id: jobId,
       custom_field_responses: customFieldResponses,
+      source_detail: sourceDetail,
     })
     .select('id')
     .single()
@@ -178,7 +180,7 @@ Deno.serve(async (req) => {
   if (resendKey && fromAddress) {
     try {
       const statusUrl = `${Deno.env.get('PUBLIC_SITE_URL') ?? ''}/status/${statusToken}`
-      await fetch('https://api.resend.com/emails', {
+      const emailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${resendKey}`,
@@ -191,11 +193,18 @@ Deno.serve(async (req) => {
           html: `<p>Hi ${name},</p><p>Thanks for applying to <strong>${job.title}</strong>. We'll be in touch as your application moves through our process.</p><p>You can check your status any time: <a href="${statusUrl}">${statusUrl}</a></p>`,
         }),
       })
-      await supabase.from('email_log').insert({
-        candidate_id: candidateId,
-        application_id: application.id,
-        type: 'acknowledgment',
-      })
+      if (!emailRes.ok) {
+        // Resend returns a JSON error body (e.g. unverified domain) with a
+        // non-2xx status rather than a network failure, so this needs its
+        // own check — fetch() alone doesn't throw on that.
+        console.error('acknowledgment email rejected', emailRes.status, await emailRes.text())
+      } else {
+        await supabase.from('email_log').insert({
+          candidate_id: candidateId,
+          application_id: application.id,
+          type: 'acknowledgment',
+        })
+      }
     } catch (err) {
       console.error('acknowledgment email failed', err)
     }

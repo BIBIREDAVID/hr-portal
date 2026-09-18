@@ -70,3 +70,20 @@ export async function getSourceBreakdown() {
 
   return breakdown
 }
+
+// Finer-grained breakdown by UTM/campaign string (item 21 extension) —
+// captured once at apply time in ApplyPage and stored on the
+// application itself, since a candidate's UTM source is per-application
+// (they could apply to different jobs via different channels).
+export async function getSourceDetailBreakdown() {
+  const { data, error } = await supabase.from('applications').select('source_detail').not('source_detail', 'is', null)
+  if (error) throw error
+
+  const counts = {}
+  for (const row of data) {
+    counts[row.source_detail] = (counts[row.source_detail] ?? 0) + 1
+  }
+  return Object.entries(counts)
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count)
+}

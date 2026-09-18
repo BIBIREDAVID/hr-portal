@@ -327,6 +327,7 @@ export default function CandidateDetail() {
                 staffUsers={staffUsers}
                 currentUser={staffUser}
                 canSchedule={canManage}
+                scorecardTemplate={selectedApplication.job.scorecard_template}
               />
             )}
 

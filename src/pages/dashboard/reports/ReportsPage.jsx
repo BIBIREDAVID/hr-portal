@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listJobs } from '../../../lib/jobs'
-import { getJobFunnel, getSourceBreakdown, getTimeInStageFlags } from '../../../lib/reports'
+import { getJobFunnel, getSourceBreakdown, getSourceDetailBreakdown, getTimeInStageFlags } from '../../../lib/reports'
 
 const stageLabels = {
   new: 'New',
@@ -223,6 +223,40 @@ function SourceTrackingSection() {
   )
 }
 
+function SourceDetailSection() {
+  const [rows, setRows] = useState(null)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    getSourceDetailBreakdown().then(setRows).catch((err) => setError(err.message))
+  }, [])
+
+  if (error) return <div style={{ fontSize: 12.5, color: '#EF4444' }}>{error}</div>
+  if (rows && rows.length === 0) return null
+
+  const maxCount = rows ? Math.max(...rows.map((r) => r.count), 1) : 1
+
+  return (
+    <div style={panelStyle}>
+      <div style={labelStyle}>Source detail (UTM / referrer)</div>
+      <p style={{ fontSize: 11.5, color: '#94A3B8', margin: 0 }}>
+        Captured from ?utm_source/utm_medium/utm_campaign on the apply page link, or the referring page.
+      </p>
+      {rows?.map(({ label, count }) => (
+        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 200, fontSize: 12, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={label}>
+            {label}
+          </div>
+          <div style={{ flex: 1, height: 16, background: '#F1F5F9', borderRadius: 5, overflow: 'hidden' }}>
+            <div style={{ width: `${(count / maxCount) * 100}%`, height: '100%', background: '#0E87FE', minWidth: 4 }} />
+          </div>
+          <div style={{ width: 24, fontSize: 12, fontWeight: 700, textAlign: 'right' }}>{count}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function ReportsPage() {
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -236,6 +270,7 @@ export default function ReportsPage() {
         <SourceTrackingSection />
       </div>
 
+      <SourceDetailSection />
       <TimeInStageSection />
     </div>
   )

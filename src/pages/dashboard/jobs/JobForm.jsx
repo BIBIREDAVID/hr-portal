@@ -14,6 +14,7 @@ const emptyJob = {
   status: 'draft',
   expires_at: '',
   custom_fields: [],
+  scorecard_template: [],
   headline: '',
   hero_image_url: '',
   benefits: [],
@@ -66,6 +67,7 @@ export default function JobForm({ mode }) {
           requirements: data.requirements || '',
           expires_at: toDateTimeLocal(data.expires_at),
           custom_fields: data.custom_fields || [],
+          scorecard_template: data.scorecard_template || [],
           headline: data.headline || '',
           hero_image_url: data.hero_image_url || '',
           benefits: data.benefits || [],
@@ -122,6 +124,7 @@ export default function JobForm({ mode }) {
       status: job.status,
       expires_at: job.expires_at ? new Date(job.expires_at).toISOString() : null,
       custom_fields: job.custom_fields.filter((f) => f.label.trim()),
+      scorecard_template: job.scorecard_template.filter((c) => c.label.trim()),
       headline: job.headline.trim() || null,
       hero_image_url: job.hero_image_url || null,
       benefits: job.benefits.filter((b) => b.label.trim()),
@@ -262,6 +265,18 @@ export default function JobForm({ mode }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <span style={labelStyle}>Custom application fields</span>
             <CustomFieldsEditor fields={job.custom_fields} onChange={(fields) => set('custom_fields', fields)} />
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span style={labelStyle}>Interview scorecard criteria</span>
+            <p style={{ fontSize: 11.5, color: '#94A3B8', margin: 0 }}>
+              Interviewers rate each of these 1-5 per interview, so feedback is comparable across interviewers.
+            </p>
+            <LabelListEditor
+              items={job.scorecard_template}
+              onChange={(v) => set('scorecard_template', v)}
+              placeholder="e.g. Communication"
+            />
           </div>
 
           <div style={{ height: 1, background: '#E7EBF1', margin: '4px 0' }} />
