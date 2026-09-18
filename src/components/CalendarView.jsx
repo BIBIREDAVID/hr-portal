@@ -103,8 +103,8 @@ export default function CalendarView({ userId }) {
                 textAlign: 'left',
                 padding: 6,
                 borderRadius: 8,
-                border: isSelected ? '1.5px solid #0E87FE' : '1px solid #E7EBF1',
-                background: isToday ? '#F0F7FF' : '#fff',
+                border: isSelected ? '1.5px solid #48418A' : '1px solid #E7EBF1',
+                background: isToday ? '#EFEDF6' : '#fff',
                 opacity: inMonth ? 1 : 0.4,
                 cursor: 'pointer',
                 display: 'flex',
@@ -119,7 +119,7 @@ export default function CalendarView({ userId }) {
                 </div>
               ))}
               {dayTodos.slice(0, 2).map((t) => (
-                <div key={t.id} style={{ fontSize: 9.5, background: '#E7F2FF', color: '#0A6BCB', borderRadius: 4, padding: '1px 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div key={t.id} style={{ fontSize: 9.5, background: '#E9E6F2', color: '#3F3D69', borderRadius: 4, padding: '1px 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {t.title}
                 </div>
               ))}

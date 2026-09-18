@@ -19,7 +19,7 @@ function Block({ title, items, ctaLabel, onCta }) {
           onClick={onCta}
           style={{
             alignSelf: 'flex-start',
-            background: '#0E87FE',
+            background: '#48418A',
             color: '#fff',
             fontWeight: 700,
             fontSize: 12.5,
@@ -72,7 +72,7 @@ export default function JobPageContent({ job, onApply }) {
           style={{
             alignSelf: 'flex-start',
             marginTop: 18,
-            background: '#0E87FE',
+            background: '#48418A',
             color: '#fff',
             fontWeight: 700,
             fontSize: 13,

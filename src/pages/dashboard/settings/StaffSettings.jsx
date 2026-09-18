@@ -15,7 +15,7 @@ const labelStyle = { fontSize: 12, fontWeight: 700, color: '#475569' }
 
 const roleBadgeColor = {
   admin: { color: '#16A34A', bg: '#E6F7EC' },
-  recruiter: { color: '#0A6BCB', bg: '#E7F2FF' },
+  recruiter: { color: '#3F3D69', bg: '#E9E6F2' },
   interviewer: { color: '#F97316', bg: '#FFEEE2' },
 }
 
@@ -144,7 +144,7 @@ export default function StaffSettings() {
               type="submit"
               disabled={inviting}
               style={{
-                background: '#0E87FE',
+                background: '#48418A',
                 color: '#fff',
                 border: 'none',
                 borderRadius: 8,

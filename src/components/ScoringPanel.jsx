@@ -151,7 +151,7 @@ export default function ScoringPanel({ application, staffUsers, onSave }) {
             onChange={(e) => setScore(e.target.value)}
           />
           <div style={{ flex: 1, height: 8, background: '#E7EBF1', borderRadius: 999, overflow: 'hidden' }}>
-            <div style={{ width: `${Math.min(Number(score) || 0, 10) * 10}%`, height: '100%', background: '#0E87FE' }} />
+            <div style={{ width: `${Math.min(Number(score) || 0, 10) * 10}%`, height: '100%', background: '#48418A' }} />
           </div>
         </div>
         <textarea
@@ -167,7 +167,7 @@ export default function ScoringPanel({ application, staffUsers, onSave }) {
           disabled={saving}
           style={{
             marginTop: 8,
-            background: '#0E87FE',
+            background: '#48418A',
             color: '#fff',
             fontWeight: 700,
             fontSize: 12.5,
@@ -193,8 +193,8 @@ export default function ScoringPanel({ application, staffUsers, onSave }) {
                 gap: 6,
                 fontSize: 11.5,
                 fontWeight: 600,
-                background: '#E7F2FF',
-                color: '#0A6BCB',
+                background: '#E9E6F2',
+                color: '#3F3D69',
                 padding: '4px 9px',
                 borderRadius: 999,
               }}
@@ -203,7 +203,7 @@ export default function ScoringPanel({ application, staffUsers, onSave }) {
               <button
                 type="button"
                 onClick={() => removeTag(tag)}
-                style={{ background: 'none', border: 'none', color: '#0A6BCB', cursor: 'pointer', fontSize: 12, padding: 0, lineHeight: 1 }}
+                style={{ background: 'none', border: 'none', color: '#3F3D69', cursor: 'pointer', fontSize: 12, padding: 0, lineHeight: 1 }}
               >
                 &times;
               </button>

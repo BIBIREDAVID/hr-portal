@@ -153,7 +153,7 @@ export default function ApplyPage() {
       <PublicShell maxWidth={560}>
         <div style={{ ...cardStyle, padding: 40, textAlign: 'center' }}>
           <h1 style={{ fontSize: 18, margin: '0 0 12px' }}>{loadError}</h1>
-          <Link to="/apply" style={{ fontSize: 14, color: '#0E87FE', fontWeight: 700, textDecoration: 'none' }}>
+          <Link to="/apply" style={{ fontSize: 14, color: '#48418A', fontWeight: 700, textDecoration: 'none' }}>
             ← View all open positions
           </Link>
         </div>
@@ -247,7 +247,7 @@ export default function ApplyPage() {
               type="submit"
               disabled={submitting}
               style={{
-                background: 'linear-gradient(135deg, #0E87FE, #0A6BCB)',
+                background: 'linear-gradient(135deg, #48418A, #3F3D69)',
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: 14.5,
@@ -263,6 +263,7 @@ export default function ApplyPage() {
             </button>
             <div style={{ fontSize: 11.5, color: '#94A3B8', textAlign: 'center' }}>
               By applying you agree your resume and details will be shared with our hiring team.
+              See our <Link to="/privacy" style={{ color: '#3F3D69', fontWeight: 600 }}>privacy notice</Link>.
             </div>
           </form>
         </div>

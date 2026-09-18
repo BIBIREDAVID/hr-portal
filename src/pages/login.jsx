@@ -44,7 +44,7 @@ export default function Login() {
       <div
         style={{
           flex: '1 1 50%',
-          background: 'linear-gradient(160deg, #0E87FE 0%, #0A5FD1 100%)',
+          background: 'linear-gradient(160deg, #48418A 0%, #2E2C4D 100%)',
           color: '#fff',
           padding: '56px 64px',
           display: 'flex',
@@ -123,7 +123,7 @@ export default function Login() {
             type="submit"
             disabled={submitting}
             style={{
-              background: '#0E87FE',
+              background: '#48418A',
               color: '#fff',
               fontWeight: 700,
               fontSize: 14,

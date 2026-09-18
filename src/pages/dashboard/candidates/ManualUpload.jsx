@@ -204,7 +204,7 @@ export default function ManualUpload() {
             type="submit"
             disabled={submitting}
             style={{
-              background: '#0E87FE',
+              background: '#48418A',
               color: '#fff',
               fontWeight: 700,
               fontSize: 14,

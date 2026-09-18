@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { getCandidateNavList } from '../lib/candidateNav'
 
-const linkStyle = { fontSize: 12.5, fontWeight: 600, color: '#0E87FE', textDecoration: 'none' }
+const linkStyle = { fontSize: 12.5, fontWeight: 600, color: '#48418A', textDecoration: 'none' }
 const disabledStyle = { fontSize: 12.5, fontWeight: 600, color: '#CBD5E1' }
 
 // Prev/next paging through whatever candidate list HR arrived from

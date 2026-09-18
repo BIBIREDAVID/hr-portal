@@ -33,7 +33,7 @@ const stageLabels = {
 const stageColors = {
   new: { bg: '#E7EBF1', color: '#475569' },
   screening: { bg: '#F1EBFF', color: '#8B5CF6' },
-  shortlisted: { bg: '#E7F2FF', color: '#0A6BCB' },
+  shortlisted: { bg: '#E9E6F2', color: '#3F3D69' },
   interview: { bg: '#FFEEE2', color: '#F97316' },
   offer: { bg: '#FFEEE2', color: '#F97316' },
   hired: { bg: '#E6F7EC', color: '#16A34A' },
@@ -41,7 +41,7 @@ const stageColors = {
 }
 
 const PROGRESS_STAGES = ['new', 'screening', 'shortlisted', 'interview', 'offer', 'hired']
-const avatarColors = ['#0E87FE', '#8B5CF6', '#F97316', '#16A34A', '#EF4444', '#0A6BCB']
+const avatarColors = ['#48418A', '#8B5CF6', '#F97316', '#16A34A', '#EF4444', '#3F3D69']
 
 function initials(name) {
   return name
@@ -85,7 +85,7 @@ function StageProgress({ stage }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: i <= currentIndex ? '#0E87FE' : '#E7EBF1',
+            background: i <= currentIndex ? '#48418A' : '#E7EBF1',
             color: i <= currentIndex ? '#fff' : '#94A3B8',
           }}
         >
@@ -227,7 +227,7 @@ export default function CandidateDetail() {
               {candidate.portfolio_url ? (
                 <>
                   {' · '}
-                  <a href={candidate.portfolio_url} target="_blank" rel="noreferrer" style={{ color: '#0E87FE' }}>
+                  <a href={candidate.portfolio_url} target="_blank" rel="noreferrer" style={{ color: '#48418A' }}>
                     Portfolio
                   </a>
                 </>
@@ -266,7 +266,7 @@ export default function CandidateDetail() {
               key={app.id}
               onClick={() => setSelectedId(app.id)}
               style={{
-                background: app.id === selectedId ? '#0E87FE' : '#fff',
+                background: app.id === selectedId ? '#48418A' : '#fff',
                 color: app.id === selectedId ? '#fff' : '#475569',
                 border: '1px solid #E7EBF1',
                 borderRadius: 999,
@@ -296,7 +296,7 @@ export default function CandidateDetail() {
               const matchScore = computeMatchScore(selectedApplication.job, candidate.resume_parsed?.text)
               return matchScore != null ? (
                 <div
-                  style={{ fontSize: 12, color: '#0E87FE', background: '#E7F2FF', borderRadius: 8, padding: '8px 12px' }}
+                  style={{ fontSize: 12, color: '#48418A', background: '#E9E6F2', borderRadius: 8, padding: '8px 12px' }}
                   title="Simple keyword match against this job's requirements — no AI, informational only"
                 >
                   Keyword match: <strong>{matchScore}%</strong>

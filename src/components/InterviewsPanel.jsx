@@ -14,7 +14,7 @@ const inputStyle = {
 const labelStyle = { fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94A3B8' }
 
 const statusColors = {
-  scheduled: { bg: '#E7F2FF', color: '#0A6BCB' },
+  scheduled: { bg: '#E9E6F2', color: '#3F3D69' },
   completed: { bg: '#E6F7EC', color: '#16A34A' },
   cancelled: { bg: '#E7EBF1', color: '#475569' },
   no_show: { bg: '#FDEAEA', color: '#EF4444' },
@@ -91,7 +91,7 @@ function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplat
             {interview.external_link && (
               <>
                 {' · '}
-                <a href={interview.external_link} target="_blank" rel="noreferrer" style={{ color: '#0E87FE' }}>
+                <a href={interview.external_link} target="_blank" rel="noreferrer" style={{ color: '#48418A' }}>
                   Join link
                 </a>
               </>
@@ -208,7 +208,7 @@ function ProposeTimesForm({ applicationId, staffUsers, currentUserId, onDone }) 
       <button
         type="button"
         onClick={() => setTimes((t) => [...t, ''])}
-        style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: '#0E87FE', fontSize: 12, fontWeight: 700, cursor: 'pointer', padding: 0 }}
+        style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: '#48418A', fontSize: 12, fontWeight: 700, cursor: 'pointer', padding: 0 }}
       >
         + Add another time
       </button>
@@ -218,7 +218,7 @@ function ProposeTimesForm({ applicationId, staffUsers, currentUserId, onDone }) 
       <button
         type="submit"
         disabled={submitting}
-        style={{ alignSelf: 'flex-start', background: '#0E87FE', color: '#fff', fontWeight: 700, fontSize: 12.5, padding: '7px 14px', borderRadius: 7, border: 'none', cursor: submitting ? 'default' : 'pointer' }}
+        style={{ alignSelf: 'flex-start', background: '#48418A', color: '#fff', fontWeight: 700, fontSize: 12.5, padding: '7px 14px', borderRadius: 7, border: 'none', cursor: submitting ? 'default' : 'pointer' }}
       >
         {submitting ? 'Sending…' : 'Send times to candidate'}
       </button>
@@ -307,13 +307,13 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
           <div style={{ display: 'flex', gap: 12 }}>
             <button
               onClick={() => setShowProposeForm((s) => !s)}
-              style={{ background: 'none', border: 'none', color: '#0E87FE', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+              style={{ background: 'none', border: 'none', color: '#48418A', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
             >
               {showProposeForm ? 'Cancel' : '+ Let candidate pick a time'}
             </button>
             <button
               onClick={() => setShowForm((s) => !s)}
-              style={{ background: 'none', border: 'none', color: '#0E87FE', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+              style={{ background: 'none', border: 'none', color: '#48418A', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
             >
               {showForm ? 'Cancel' : '+ Schedule'}
             </button>
@@ -394,7 +394,7 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
           <button
             type="submit"
             disabled={submitting}
-            style={{ alignSelf: 'flex-start', background: '#0E87FE', color: '#fff', fontWeight: 700, fontSize: 12.5, padding: '7px 14px', borderRadius: 7, border: 'none', cursor: submitting ? 'default' : 'pointer' }}
+            style={{ alignSelf: 'flex-start', background: '#48418A', color: '#fff', fontWeight: 700, fontSize: 12.5, padding: '7px 14px', borderRadius: 7, border: 'none', cursor: submitting ? 'default' : 'pointer' }}
           >
             {submitting ? 'Scheduling…' : 'Schedule interview'}
           </button>

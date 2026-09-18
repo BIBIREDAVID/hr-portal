@@ -4,7 +4,7 @@ import { STAGES } from '../lib/applications'
 const stageMeta = {
   new: { label: 'New', color: '#475569', bg: '#E7EBF1' },
   screening: { label: 'Screening', color: '#8B5CF6', bg: '#F1EBFF' },
-  shortlisted: { label: 'Shortlisted', color: '#0A6BCB', bg: '#E7F2FF' },
+  shortlisted: { label: 'Shortlisted', color: '#3F3D69', bg: '#E9E6F2' },
   interview: { label: 'Interview', color: '#F97316', bg: '#FFEEE2' },
   offer: { label: 'Offer', color: '#F97316', bg: '#FFEEE2' },
   hired: { label: 'Hired', color: '#16A34A', bg: '#E6F7EC' },

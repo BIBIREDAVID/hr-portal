@@ -173,7 +173,7 @@ export default function OfferLetterModal({ candidate, application, actorId, onCl
             onClick={handleGenerate}
             disabled={generating}
             style={{
-              background: '#0E87FE',
+              background: '#48418A',
               color: '#fff',
               fontWeight: 700,
               fontSize: 13,

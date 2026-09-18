@@ -104,7 +104,7 @@ export default function NotesThread({ applicationId, currentUser, staffUsers, ca
                 width: 24,
                 height: 24,
                 borderRadius: 999,
-                background: '#0E87FE',
+                background: '#48418A',
                 color: '#fff',
                 fontSize: 10,
                 fontWeight: 800,
@@ -168,7 +168,7 @@ export default function NotesThread({ applicationId, currentUser, staffUsers, ca
           disabled={posting || !body.trim()}
           style={{
             alignSelf: 'flex-start',
-            background: '#0E87FE',
+            background: '#48418A',
             color: '#fff',
             fontWeight: 700,
             fontSize: 12.5,

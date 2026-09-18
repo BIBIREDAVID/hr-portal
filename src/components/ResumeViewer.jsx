@@ -38,7 +38,7 @@ export default function ResumeViewer({ resumePath }) {
           Resume
         </div>
         {signedUrl && (
-          <a href={signedUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, fontWeight: 600, color: '#0E87FE' }}>
+          <a href={signedUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12.5, fontWeight: 600, color: '#48418A' }}>
             Open / download
           </a>
         )}

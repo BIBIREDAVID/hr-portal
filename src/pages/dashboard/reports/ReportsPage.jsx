@@ -14,7 +14,7 @@ const stageLabels = {
 }
 
 const stageColors = {
-  new: '#0E87FE',
+  new: '#48418A',
   screening: '#8B5CF6',
   shortlisted: '#8B5CF6',
   interview: '#F97316',
@@ -206,7 +206,7 @@ function SourceTrackingSection() {
                 {total > 0 && (
                   <>
                     <div style={{ width: `${(counts.hired / total) * 100}%`, background: '#16A34A' }} />
-                    <div style={{ width: `${(counts.in_progress / total) * 100}%`, background: '#0E87FE' }} />
+                    <div style={{ width: `${(counts.in_progress / total) * 100}%`, background: '#48418A' }} />
                     <div style={{ width: `${(counts.rejected / total) * 100}%`, background: '#EF4444' }} />
                   </>
                 )}
@@ -248,7 +248,7 @@ function SourceDetailSection() {
             {label}
           </div>
           <div style={{ flex: 1, height: 16, background: '#F1F5F9', borderRadius: 5, overflow: 'hidden' }}>
-            <div style={{ width: `${(count / maxCount) * 100}%`, height: '100%', background: '#0E87FE', minWidth: 4 }} />
+            <div style={{ width: `${(count / maxCount) * 100}%`, height: '100%', background: '#48418A', minWidth: 4 }} />
           </div>
           <div style={{ width: 24, fontSize: 12, fontWeight: 700, textAlign: 'right' }}>{count}</div>
         </div>

@@ -32,14 +32,14 @@ const filterInputStyle = {
 const stageColors = {
   new: { bg: '#E7EBF1', color: '#475569' },
   screening: { bg: '#F1EBFF', color: '#8B5CF6' },
-  shortlisted: { bg: '#E7F2FF', color: '#0A6BCB' },
+  shortlisted: { bg: '#E9E6F2', color: '#3F3D69' },
   interview: { bg: '#FFEEE2', color: '#F97316' },
   offer: { bg: '#FFEEE2', color: '#F97316' },
   hired: { bg: '#E6F7EC', color: '#16A34A' },
   rejected: { bg: '#FDEAEA', color: '#EF4444' },
 }
 
-const avatarColors = ['#0E87FE', '#8B5CF6', '#F97316', '#16A34A', '#EF4444', '#0A6BCB']
+const avatarColors = ['#48418A', '#8B5CF6', '#F97316', '#16A34A', '#EF4444', '#3F3D69']
 
 function initials(name) {
   return name
@@ -224,7 +224,7 @@ export default function ApplicationsList() {
             <Link
               to="/dashboard/candidates/new"
               style={{
-                background: '#0E87FE',
+                background: '#48418A',
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: 12.5,
@@ -240,7 +240,7 @@ export default function ApplicationsList() {
           <button
             onClick={() => setView('table')}
             style={{
-              background: view === 'table' ? '#0E87FE' : '#fff',
+              background: view === 'table' ? '#48418A' : '#fff',
               color: view === 'table' ? '#fff' : '#475569',
               border: '1px solid #E7EBF1',
               borderRadius: 7,
@@ -255,7 +255,7 @@ export default function ApplicationsList() {
           <button
             onClick={() => setView('kanban')}
             style={{
-              background: view === 'kanban' ? '#0E87FE' : '#fff',
+              background: view === 'kanban' ? '#48418A' : '#fff',
               color: view === 'kanban' ? '#fff' : '#475569',
               border: '1px solid #E7EBF1',
               borderRadius: 7,
@@ -401,7 +401,7 @@ export default function ApplicationsList() {
               onClick={() => setSortByMatch((v) => !v)}
               title="Rank by keyword match against the job's requirements — a simple, no-AI signal for comparing multiple applicants, not a replacement for manual scoring"
               style={{
-                background: sortByMatch ? '#0E87FE' : '#fff',
+                background: sortByMatch ? '#48418A' : '#fff',
                 color: sortByMatch ? '#fff' : '#475569',
                 border: '1px solid #E7EBF1',
                 borderRadius: 7,
@@ -416,8 +416,8 @@ export default function ApplicationsList() {
           </div>
 
           {canManage && selected.size > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#F0F7FF', border: '1px solid #E7F2FF', borderRadius: 10, padding: '10px 16px' }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0A6BCB' }}>{selected.size} selected</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#EFEDF6', border: '1px solid #E9E6F2', borderRadius: 10, padding: '10px 16px' }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#3F3D69' }}>{selected.size} selected</div>
               <select
                 value={bulkStage}
                 onChange={(e) => setBulkStage(e.target.value)}
@@ -433,7 +433,7 @@ export default function ApplicationsList() {
               <button
                 onClick={handleBulkStageChange}
                 disabled={!bulkStage || bulkBusy}
-                style={{ ...filterInputStyle, background: '#0E87FE', color: '#fff', fontWeight: 700, border: 'none', cursor: bulkStage ? 'pointer' : 'default' }}
+                style={{ ...filterInputStyle, background: '#48418A', color: '#fff', fontWeight: 700, border: 'none', cursor: bulkStage ? 'pointer' : 'default' }}
               >
                 Apply
               </button>
@@ -541,7 +541,7 @@ export default function ApplicationsList() {
               </div>
               <div style={{ fontSize: 12.5, fontWeight: 700 }}>{app.score ?? '—'}</div>
               <div style={{ fontSize: 12, color: '#F97316' }}>{app.rating ? '★'.repeat(app.rating) : '—'}</div>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: app.matchScore == null ? '#94A3B8' : '#0E87FE' }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: app.matchScore == null ? '#94A3B8' : '#48418A' }}>
                 {app.matchScore == null ? '—' : `${app.matchScore}%`}
               </div>
               <div style={{ fontSize: 12.5, color: '#475569' }}>

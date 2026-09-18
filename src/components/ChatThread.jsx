@@ -76,7 +76,7 @@ export default function ChatThread({ viewerType, fetchMessages, sendMessage, tit
               <div
                 style={{
                   maxWidth: '80%',
-                  background: isMine ? '#0E87FE' : '#F1F5F9',
+                  background: isMine ? '#48418A' : '#F1F5F9',
                   color: isMine ? '#fff' : '#334155',
                   borderRadius: 10,
                   padding: '8px 12px',
@@ -101,7 +101,7 @@ export default function ChatThread({ viewerType, fetchMessages, sendMessage, tit
         <button
           type="submit"
           disabled={sending || !body.trim()}
-          style={{ background: '#0E87FE', color: '#fff', fontWeight: 700, fontSize: 12.5, padding: '9px 16px', borderRadius: 8, border: 'none', cursor: sending ? 'default' : 'pointer' }}
+          style={{ background: '#48418A', color: '#fff', fontWeight: 700, fontSize: 12.5, padding: '9px 16px', borderRadius: 8, border: 'none', cursor: sending ? 'default' : 'pointer' }}
         >
           Send
         </button>

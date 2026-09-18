@@ -8,7 +8,7 @@ const workModeLabels = { onsite: 'On-site', remote: 'Remote', hybrid: 'Hybrid' }
 const workModeColors = {
   onsite: { bg: '#FFEEE2', color: '#F97316' },
   remote: { bg: '#E6F7EC', color: '#16A34A' },
-  hybrid: { bg: '#E7F2FF', color: '#0A6BCB' },
+  hybrid: { bg: '#E9E6F2', color: '#3F3D69' },
 }
 
 function initials(title) {
@@ -35,7 +35,7 @@ export default function JobsBoard() {
     <PublicShell maxWidth={760}>
       <div
         style={{
-          background: 'linear-gradient(135deg, #0E87FE, #0B4A8F)',
+          background: 'linear-gradient(135deg, #48418A, #2E2C4D)',
           borderRadius: 20,
           padding: '44px 40px',
           marginBottom: 32,
@@ -92,8 +92,8 @@ export default function JobsBoard() {
                     width: 44,
                     height: 44,
                     borderRadius: 12,
-                    background: '#E7F2FF',
-                    color: '#0A6BCB',
+                    background: '#E9E6F2',
+                    color: '#3F3D69',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -128,7 +128,7 @@ export default function JobsBoard() {
                   {job.headline && <div style={{ fontSize: 13, color: '#475569', marginTop: 8 }}>{job.headline}</div>}
                 </div>
 
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#0E87FE', flex: '0 0 auto' }}>Apply →</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#48418A', flex: '0 0 auto' }}>Apply →</span>
               </Link>
             )
           })}

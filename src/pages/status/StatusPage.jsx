@@ -86,7 +86,7 @@ const stageLabels = {
 const stageColors = {
   new: { bg: '#E7EBF1', color: '#475569' },
   screening: { bg: '#F1EBFF', color: '#8B5CF6' },
-  shortlisted: { bg: '#E7F2FF', color: '#0A6BCB' },
+  shortlisted: { bg: '#E9E6F2', color: '#3F3D69' },
   interview: { bg: '#FFEEE2', color: '#F97316' },
   offer: { bg: '#FFEEE2', color: '#F97316' },
   hired: { bg: '#E6F7EC', color: '#16A34A' },
@@ -109,7 +109,7 @@ export default function StatusPage() {
     <PublicShell maxWidth={620}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
         <div>
-          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#0A6BCB' }}>
+          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#3F3D69' }}>
             Application status
           </div>
           {applications && applications.length > 0 && (
@@ -174,9 +174,9 @@ export default function StatusPage() {
                     onClick={() => setExpandedId(isExpanded ? null : app.application_id)}
                     style={{
                       alignSelf: 'flex-start',
-                      background: isExpanded ? '#E7F2FF' : 'none',
+                      background: isExpanded ? '#E9E6F2' : 'none',
                       border: isExpanded ? 'none' : '1px solid #E7EBF1',
-                      color: '#0A6BCB',
+                      color: '#3F3D69',
                       fontSize: 12.5,
                       fontWeight: 700,
                       cursor: 'pointer',

@@ -69,7 +69,7 @@ export default function JobsList() {
         <Link
           to="/dashboard/jobs/new"
           style={{
-            background: '#0E87FE',
+            background: '#48418A',
             color: '#fff',
             fontWeight: 700,
             fontSize: 13,
@@ -160,14 +160,14 @@ export default function JobsList() {
                       width: 36,
                       height: 36,
                       borderRadius: 9,
-                      background: '#E7F2FF',
+                      background: '#E9E6F2',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flex: '0 0 auto',
                     }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A6BCB" strokeWidth="2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3F3D69" strokeWidth="2">
                       <rect x="3" y="7" width="18" height="13" rx="2" />
                       <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                     </svg>
@@ -203,7 +203,7 @@ export default function JobsList() {
                 <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{applicantCounts[job.id] ?? 0}</div>
                 <div style={{ fontSize: 13, color: '#94A3B8' }}>{formatDate(job.expires_at)}</div>
                 <div style={{ display: 'flex', gap: 14 }}>
-                  <Link to={`/dashboard/jobs/${job.id}`} style={{ fontSize: 12.5, fontWeight: 600, color: '#0E87FE', textDecoration: 'none' }}>
+                  <Link to={`/dashboard/jobs/${job.id}`} style={{ fontSize: 12.5, fontWeight: 600, color: '#48418A', textDecoration: 'none' }}>
                     Edit
                   </Link>
                   <button

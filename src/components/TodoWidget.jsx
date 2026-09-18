@@ -105,7 +105,7 @@ export default function TodoWidget({ userId }) {
         <input type="date" style={inputStyle} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         <button
           type="submit"
-          style={{ background: '#0E87FE', color: '#fff', fontWeight: 700, fontSize: 12, padding: '7px 12px', borderRadius: 6, border: 'none', cursor: 'pointer' }}
+          style={{ background: '#48418A', color: '#fff', fontWeight: 700, fontSize: 12, padding: '7px 12px', borderRadius: 6, border: 'none', cursor: 'pointer' }}
         >
           Add
         </button>

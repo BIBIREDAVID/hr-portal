@@ -249,10 +249,10 @@ export default function JobForm({ mode }) {
                   {job.locations.map((loc) => (
                     <span
                       key={loc}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 600, background: '#E7F2FF', color: '#0A6BCB', padding: '3px 8px', borderRadius: 999 }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 600, background: '#E9E6F2', color: '#3F3D69', padding: '3px 8px', borderRadius: 999 }}
                     >
                       {loc}
-                      <button type="button" onClick={() => removeLocation(loc)} style={{ background: 'none', border: 'none', color: '#0A6BCB', cursor: 'pointer', fontSize: 12, padding: 0, lineHeight: 1 }}>
+                      <button type="button" onClick={() => removeLocation(loc)} style={{ background: 'none', border: 'none', color: '#3F3D69', cursor: 'pointer', fontSize: 12, padding: 0, lineHeight: 1 }}>
                         &times;
                       </button>
                     </span>
@@ -321,7 +321,7 @@ export default function JobForm({ mode }) {
               type="submit"
               disabled={saving}
               style={{
-                background: '#0E87FE',
+                background: '#48418A',
                 color: '#fff',
                 fontWeight: 700,
                 fontSize: 14,
@@ -352,14 +352,14 @@ export default function JobForm({ mode }) {
             <button
               type="button"
               onClick={() => setPreviewWidth('desktop')}
-              style={{ background: previewWidth === 'desktop' ? '#0E87FE' : '#fff', color: previewWidth === 'desktop' ? '#fff' : '#475569', border: '1px solid #E7EBF1', borderRadius: 6, padding: '4px 10px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}
+              style={{ background: previewWidth === 'desktop' ? '#48418A' : '#fff', color: previewWidth === 'desktop' ? '#fff' : '#475569', border: '1px solid #E7EBF1', borderRadius: 6, padding: '4px 10px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}
             >
               Desktop
             </button>
             <button
               type="button"
               onClick={() => setPreviewWidth('mobile')}
-              style={{ background: previewWidth === 'mobile' ? '#0E87FE' : '#fff', color: previewWidth === 'mobile' ? '#fff' : '#475569', border: '1px solid #E7EBF1', borderRadius: 6, padding: '4px 10px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}
+              style={{ background: previewWidth === 'mobile' ? '#48418A' : '#fff', color: previewWidth === 'mobile' ? '#fff' : '#475569', border: '1px solid #E7EBF1', borderRadius: 6, padding: '4px 10px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}
             >
               Mobile
             </button>

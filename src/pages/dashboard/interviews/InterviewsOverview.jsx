@@ -4,13 +4,13 @@ import { listInterviews, updateInterview } from '../../../lib/interviews'
 import { useAuth } from '../../../lib/AuthContext'
 
 const statusColors = {
-  scheduled: { bg: '#E7F2FF', color: '#0A6BCB' },
+  scheduled: { bg: '#E9E6F2', color: '#3F3D69' },
   completed: { bg: '#E6F7EC', color: '#16A34A' },
   cancelled: { bg: '#E7EBF1', color: '#475569' },
   no_show: { bg: '#FDEAEA', color: '#EF4444' },
 }
 
-const avatarColors = ['#0E87FE', '#8B5CF6', '#F97316', '#16A34A', '#EF4444', '#0A6BCB']
+const avatarColors = ['#48418A', '#8B5CF6', '#F97316', '#16A34A', '#EF4444', '#3F3D69']
 
 function initials(name) {
   return name

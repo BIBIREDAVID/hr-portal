@@ -134,7 +134,7 @@ export default function NotificationsBell() {
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                style={{ background: 'none', border: 'none', color: '#0E87FE', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: '#48418A', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}
               >
                 Mark all read
               </button>
@@ -153,12 +153,12 @@ export default function NotificationsBell() {
                 padding: '10px 14px',
                 borderBottom: '1px solid #F1F5F9',
                 cursor: 'pointer',
-                background: n.read ? '#fff' : '#F0F7FF',
+                background: n.read ? '#fff' : '#EFEDF6',
                 display: 'flex',
                 gap: 8,
               }}
             >
-              {!n.read && <div style={{ width: 6, height: 6, borderRadius: 999, background: '#0E87FE', marginTop: 5, flex: '0 0 auto' }} />}
+              {!n.read && <div style={{ width: 6, height: 6, borderRadius: 999, background: '#48418A', marginTop: 5, flex: '0 0 auto' }} />}
               <div>
                 <div style={{ fontSize: 12.5, color: '#334155' }}>{n.message}</div>
                 <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{timeAgo(n.created_at)}</div>

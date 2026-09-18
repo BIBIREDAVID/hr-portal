@@ -11,6 +11,7 @@ import ApplyPage from './pages/apply/ApplyPage'
 import JobsBoard from './pages/apply/JobsBoard'
 import StatusPage from './pages/status/StatusPage'
 import StatusLookupPage from './pages/status/StatusLookupPage'
+import PrivacyPage from './pages/PrivacyPage'
 import ApplicationsList from './pages/dashboard/applications/ApplicationsList'
 import ApplicationRedirect from './pages/dashboard/applications/ApplicationRedirect'
 import CandidateDetail from './pages/dashboard/candidates/CandidateDetail'
@@ -32,6 +33,7 @@ function App() {
           <Route path="/apply" element={<JobsBoard />} />
           <Route path="/apply/:jobId" element={<ApplyPage />} />
           <Route path="/status" element={<StatusLookupPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/status/:token" element={<StatusPage />} />
 
           <Route

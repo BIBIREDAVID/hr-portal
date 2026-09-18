@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
 import NotificationsBell from './NotificationsBell'
+
+const SIDEBAR_WIDTH = 232
+const FOOTER_HEIGHT = 41
 
 function Icon({ path }) {
   return (
@@ -88,6 +92,22 @@ const STAFF_ICON = (
   </>
 )
 
+const COLLAPSE_ICON = (
+  <>
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M9 3v18" />
+    <path d="M15 9l-3 3 3 3" />
+  </>
+)
+
+const EXPAND_ICON = (
+  <>
+    <rect x="3" y="3" width="18" height="18" rx="2" />
+    <path d="M9 3v18" />
+    <path d="M13 9l3 3-3 3" />
+  </>
+)
+
 const SECTION_LABELS = {
   jobs: 'Jobs',
   applications: 'Applications',
@@ -107,14 +127,36 @@ const linkStyle = ({ isActive }) => ({
   fontSize: 13.5,
   fontWeight: 600,
   textDecoration: 'none',
-  color: isActive ? '#0A6BCB' : '#475569',
-  background: isActive ? '#E7F2FF' : 'transparent',
+  color: isActive ? '#3F3D69' : '#475569',
+  background: isActive ? '#E9E6F2' : 'transparent',
 })
 
 export default function DashboardLayout() {
   const { staffUser, signOut } = useAuth()
   const canManage = staffUser && ['admin', 'recruiter'].includes(staffUser.role)
   const location = useLocation()
+
+  // Per-viewer convenience only (not shared/synced state), so
+  // localStorage is fine here — falls back to open on any read failure.
+  const [sidebarOpen, setSidebarOpen] = useState(() => {
+    try {
+      return localStorage.getItem('hr-portal-sidebar-open') !== 'false'
+    } catch {
+      return true
+    }
+  })
+
+  function toggleSidebar() {
+    setSidebarOpen((open) => {
+      const next = !open
+      try {
+        localStorage.setItem('hr-portal-sidebar-open', String(next))
+      } catch {
+        // ignore
+      }
+      return next
+    })
+  }
 
   const segment = location.pathname.split('/')[2]
   const sectionLabel = SECTION_LABELS[segment] ?? 'Overview'
@@ -124,84 +166,93 @@ export default function DashboardLayout() {
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'system-ui, sans-serif', background: '#F6F8FB' }}>
       <div
         style={{
-          width: 232,
+          width: sidebarOpen ? SIDEBAR_WIDTH : 0,
           flex: '0 0 auto',
           height: '100vh',
-          overflowY: 'auto',
-          borderRight: '1px solid #ECEEF3',
+          overflow: 'hidden',
+          borderRight: sidebarOpen ? '1px solid #ECEEF3' : 'none',
           background: '#fff',
-          padding: '22px 14px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 22,
+          transition: 'width 0.15s ease',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 6px' }}>
-          <div style={{ width: 24, height: 24, borderRadius: 7, background: '#0E87FE' }} />
-          <div style={{ fontWeight: 800, fontSize: 14.5 }}>HR Portal</div>
-        </div>
-
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} style={linkStyle}>
-              <Icon path={item.icon} />
-              {item.label}
-            </NavLink>
-          ))}
-          {canManage && (
-            <NavLink to="/dashboard/settings/email-triggers" style={linkStyle}>
-              <Icon path={SETTINGS_ICON} />
-              Settings
-            </NavLink>
-          )}
-          {staffUser?.role === 'admin' && (
-            <NavLink to="/dashboard/settings/staff" style={linkStyle}>
-              <Icon path={STAFF_ICON} />
-              Staff
-            </NavLink>
-          )}
-        </nav>
-
-        <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div
+          style={{
+            width: SIDEBAR_WIDTH,
+            height: '100vh',
+            overflowY: 'auto',
+            padding: '22px 14px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 22,
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 6px' }}>
-            <div
+            <div style={{ width: 24, height: 24, borderRadius: 7, background: '#48418A' }} />
+            <div style={{ fontWeight: 800, fontSize: 14.5 }}>HR Portal</div>
+          </div>
+
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {navItems.map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.end} style={linkStyle}>
+                <Icon path={item.icon} />
+                {item.label}
+              </NavLink>
+            ))}
+            {canManage && (
+              <NavLink to="/dashboard/settings/email-triggers" style={linkStyle}>
+                <Icon path={SETTINGS_ICON} />
+                Settings
+              </NavLink>
+            )}
+            {staffUser?.role === 'admin' && (
+              <NavLink to="/dashboard/settings/staff" style={linkStyle}>
+                <Icon path={STAFF_ICON} />
+                Staff
+              </NavLink>
+            )}
+          </nav>
+
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 6px' }}>
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 999,
+                  background: '#48418A',
+                  color: '#fff',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flex: '0 0 auto',
+                }}
+              >
+                {initial}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {staffUser?.name}
+                </div>
+                <div style={{ fontSize: 11, color: '#94A3B8', textTransform: 'capitalize' }}>{staffUser?.role}</div>
+              </div>
+            </div>
+            <button
+              onClick={signOut}
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 999,
-                background: '#0E87FE',
-                color: '#fff',
-                fontSize: 12,
-                fontWeight: 700,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flex: '0 0 auto',
+                background: '#fff',
+                border: '1px solid #ECEEF3',
+                borderRadius: 8,
+                padding: '8px 12px',
+                fontSize: 12.5,
+                fontWeight: 600,
+                cursor: 'pointer',
               }}
             >
-              {initial}
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {staffUser?.name}
-              </div>
-              <div style={{ fontSize: 11, color: '#94A3B8', textTransform: 'capitalize' }}>{staffUser?.role}</div>
-            </div>
+              Sign out
+            </button>
           </div>
-          <button
-            onClick={signOut}
-            style={{
-              background: '#fff',
-              border: '1px solid #ECEEF3',
-              borderRadius: 8,
-              padding: '8px 12px',
-              fontSize: 12.5,
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            Sign out
-          </button>
         </div>
       </div>
 
@@ -217,22 +268,73 @@ export default function DashboardLayout() {
             background: '#fff',
           }}
         >
-          <div
-            style={{
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              color: '#0B4A8F',
-            }}
-          >
-            / {sectionLabel}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <button
+              onClick={toggleSidebar}
+              title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              style={{
+                background: 'none',
+                border: '1px solid #ECEEF3',
+                borderRadius: 7,
+                width: 30,
+                height: 30,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#475569',
+              }}
+            >
+              <Icon path={sidebarOpen ? COLLAPSE_ICON : EXPAND_ICON} />
+            </button>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: '#2E2C4D',
+              }}
+            >
+              / {sectionLabel}
+            </div>
           </div>
           <NotificationsBell />
         </div>
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '4px 4px 0' }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: `4px 4px ${FOOTER_HEIGHT}px` }}>
           <Outlet />
         </div>
+      </div>
+
+      <div
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: sidebarOpen ? SIDEBAR_WIDTH : 0,
+          right: 0,
+          height: FOOTER_HEIGHT,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '0 28px',
+          borderTop: '1px solid #ECEEF3',
+          background: '#fff',
+          transition: 'left 0.15s ease',
+          zIndex: 10,
+        }}
+      >
+        <div
+          style={{
+            width: 14,
+            height: 14,
+            borderRadius: 4,
+            background: 'linear-gradient(135deg, #48418A, #2E2C4D)',
+            flex: '0 0 auto',
+          }}
+        />
+        <span style={{ fontSize: 11.5, color: '#94A3B8' }}>
+          &copy; {new Date().getFullYear()} HR Portal. All rights reserved.
+        </span>
       </div>
     </div>
   )

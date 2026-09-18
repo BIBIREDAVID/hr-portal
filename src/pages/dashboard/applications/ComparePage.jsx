@@ -38,7 +38,7 @@ export default function ComparePage() {
     return (
       <div style={{ padding: 32, fontSize: 13, color: '#94A3B8' }}>
         Select two or more applications from the{' '}
-        <Link to="/dashboard/applications" style={{ color: '#0E87FE' }}>
+        <Link to="/dashboard/applications" style={{ color: '#48418A' }}>
           Applications
         </Link>{' '}
         table to compare them.
@@ -79,10 +79,10 @@ export default function ComparePage() {
             <div>
               <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94A3B8' }}>Score</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#0E87FE' }}>{app.score ?? '—'}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#48418A' }}>{app.score ?? '—'}</div>
                 {app.score != null && (
                   <div style={{ flex: 1, height: 6, background: '#F1F5F9', borderRadius: 999, overflow: 'hidden' }}>
-                    <div style={{ width: `${Math.min(app.score, 10) * 10}%`, height: '100%', background: '#0E87FE' }} />
+                    <div style={{ width: `${Math.min(app.score, 10) * 10}%`, height: '100%', background: '#48418A' }} />
                   </div>
                 )}
               </div>
@@ -112,7 +112,7 @@ export default function ComparePage() {
               <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 4 }}>
                 {app.tags?.length > 0 ? (
                   app.tags.map((tag) => (
-                    <span key={tag} style={{ fontSize: 11, fontWeight: 600, background: '#E7F2FF', color: '#0A6BCB', padding: '3px 8px', borderRadius: 999 }}>
+                    <span key={tag} style={{ fontSize: 11, fontWeight: 600, background: '#E9E6F2', color: '#3F3D69', padding: '3px 8px', borderRadius: 999 }}>
                       {tag}
                     </span>
                   ))
