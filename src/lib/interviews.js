@@ -1,7 +1,10 @@
 import { supabase } from './supabaseClient'
 
+// interview_panel's many-to-many path to `users` collides with the direct
+// interviewer_id FK unless disambiguated — see PGRST201 ("more than one
+// relationship was found for 'interviews' and 'users'").
 const INTERVIEW_SELECT =
-  '*, interviewer:users(id,name), stage:job_interview_stages(id,name,order_index,criteria), panel:interview_panel(user:users(id,name))'
+  '*, interviewer:users!interviews_interviewer_id_fkey(id,name), stage:job_interview_stages(id,name,order_index,criteria), panel:interview_panel(user:users(id,name))'
 
 // RLS scopes this automatically (Phase 1/6): admin/recruiter see every
 // interview on the application; an interviewer only sees interviews

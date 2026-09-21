@@ -1,4 +1,6 @@
 import { supabase } from './supabaseClient'
+import { analyzeCv, suggestQuestions } from './cvAnalysis'
+import { listQuestions } from './questionLibrary'
 
 export const STAGES = ['new', 'screening', 'shortlisted', 'interview', 'offer', 'hired', 'rejected']
 
@@ -71,9 +73,6 @@ export async function listApplicationsByIds(ids) {
 // questions onto the application. Manual/on-demand from the candidate
 // detail page's "Analyze CV" button.
 export async function analyzeCvForApplication(applicationId) {
-  const { analyzeCv, suggestQuestions } = await import('./cvAnalysis')
-  const { listQuestions } = await import('./questionLibrary')
-
   const application = await getApplication(applicationId)
   const resumeText = application.candidate?.resume_parsed?.text || ''
   const report = analyzeCv(resumeText)

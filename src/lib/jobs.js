@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { seedDefaultStages } from './interviews'
 
 export async function listJobs() {
   const { data, error } = await supabase
@@ -59,7 +60,6 @@ export async function createJob(payload, createdBy) {
   // failure here shouldn't undo job creation — HR can add stages
   // manually from the job's interview-stages editor if this fails.
   try {
-    const { seedDefaultStages } = await import('./interviews')
     await seedDefaultStages(data.id)
   } catch (err) {
     console.error('default interview stage seeding failed', err)

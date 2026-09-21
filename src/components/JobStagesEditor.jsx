@@ -145,8 +145,7 @@ export default function JobStagesEditor({ jobId }) {
     }
   }
 
-  async function handleAddStage(e) {
-    e.preventDefault()
+  async function handleAddStage() {
     if (!newName.trim()) return
     setAdding(true)
     setError(null)
@@ -170,21 +169,28 @@ export default function JobStagesEditor({ jobId }) {
       {stages.map((stage) => (
         <StageRow key={stage.id} stage={stage} onSave={handleSaveStage} onDelete={handleDeleteStage} />
       ))}
-      <form onSubmit={handleAddStage} style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
         <input
           style={{ ...inputStyle, flex: 1 }}
           placeholder="New stage name, e.g. Panel interview"
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleAddStage()
+            }
+          }}
         />
         <button
-          type="submit"
+          type="button"
+          onClick={handleAddStage}
           disabled={adding}
           style={{ background: '#48418A', color: '#fff', border: 'none', borderRadius: 7, padding: '7px 14px', fontSize: 12.5, fontWeight: 700, cursor: adding ? 'default' : 'pointer' }}
         >
           {adding ? 'Adding…' : '+ Add stage'}
         </button>
-      </form>
+      </div>
     </div>
   )
 }
