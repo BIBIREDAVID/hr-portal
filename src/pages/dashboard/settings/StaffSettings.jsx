@@ -49,7 +49,7 @@ export default function StaffSettings() {
     setCreated(null)
     try {
       const result = await inviteStaff({ name, email, role })
-      setCreated({ email: result.staff.email, tempPassword: result.temp_password })
+      setCreated({ email: result.staff.email, tempPassword: result.temp_password, emailSent: result.email_sent })
       setName('')
       setEmail('')
       setRole('recruiter')
@@ -132,8 +132,10 @@ export default function StaffSettings() {
                 padding: 12,
               }}
             >
-              Account created for <strong>{created.email}</strong>. Share this one-time temporary
-              password with them so they can sign in and should change it:
+              Account created for <strong>{created.email}</strong>.{' '}
+              {created.emailSent
+                ? "We've emailed them their login and this temporary password."
+                : "Couldn't send the welcome email — share this one-time temporary password with them yourself:"}
               <div style={{ fontFamily: 'monospace', fontSize: 13, marginTop: 6, fontWeight: 700 }}>
                 {created.tempPassword}
               </div>

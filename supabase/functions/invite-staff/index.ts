@@ -117,5 +117,39 @@ Deno.serve(async (req) => {
     return json({ error: insertError.message }, 500)
   }
 
-  return json({ staff: staffRow, temp_password: tempPassword }, 201)
+  // Best-effort welcome email — the temp password is still returned in
+  // the response either way (StaffSettings.jsx shows it on screen), so
+  // an email failure here never blocks account creation, same pattern
+  // as the acknowledgment email in the `apply` function.
+  let emailSent = false
+  const resendKey = Deno.env.get('RESEND_API_KEY')
+  const fromAddress = Deno.env.get('EMAIL_FROM_ADDRESS')
+  if (resendKey && fromAddress) {
+    try {
+      const loginUrl = `${Deno.env.get('PUBLIC_SITE_URL') ?? ''}/login`
+      const html = `<p>Hi ${name},</p><p>An account has been created for you on the HR Interview Portal with the <strong>${role}</strong> role.</p><p>Sign in at <a href="${loginUrl}">${loginUrl}</a> with:</p><p>Email: <strong>${email}</strong><br>Temporary password: <strong>${tempPassword}</strong></p><p>You'll be able to change your password after signing in.</p>`
+      const emailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: email,
+          subject: 'Your HR Interview Portal account',
+          html,
+        }),
+      })
+      if (!emailRes.ok) {
+        console.error('welcome email rejected', emailRes.status, await emailRes.text())
+      } else {
+        emailSent = true
+      }
+    } catch (err) {
+      console.error('welcome email failed', err instanceof Error ? err.message : String(err))
+    }
+  }
+
+  return json({ staff: staffRow, temp_password: tempPassword, email_sent: emailSent }, 201)
 })
