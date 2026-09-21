@@ -25,6 +25,7 @@ export default function JobsList() {
   const [applicantCounts, setApplicantCounts] = useState({})
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
+  const [copiedId, setCopiedId] = useState(null)
 
   async function refresh() {
     try {
@@ -39,6 +40,17 @@ export default function JobsList() {
   useEffect(() => {
     refresh()
   }, [])
+
+  async function handleCopyLink(job) {
+    const url = `${window.location.origin}/apply/${job.id}`
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopiedId(job.id)
+      setTimeout(() => setCopiedId((id) => (id === job.id ? null : id)), 1500)
+    } catch (err) {
+      setError('Could not copy link: ' + err.message)
+    }
+  }
 
   async function handleDelete(job) {
     if (!confirm(`Delete "${job.title}"? This cannot be undone.`)) return
@@ -202,7 +214,21 @@ export default function JobsList() {
                 </div>
                 <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>{applicantCounts[job.id] ?? 0}</div>
                 <div style={{ fontSize: 13, color: '#94A3B8' }}>{formatDate(job.expires_at)}</div>
-                <div style={{ display: 'flex', gap: 14 }}>
+                <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                  <button
+                    onClick={() => handleCopyLink(job)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: copiedId === job.id ? '#16A34A' : '#48418A',
+                      fontSize: 12.5,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                  >
+                    {copiedId === job.id ? 'Copied!' : 'Copy link'}
+                  </button>
                   <Link to={`/dashboard/jobs/${job.id}`} style={{ fontSize: 12.5, fontWeight: 600, color: '#48418A', textDecoration: 'none' }}>
                     Edit
                   </Link>
