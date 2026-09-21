@@ -305,7 +305,7 @@ export default function CandidateDetail() {
               ) : null
             })()}
             {canManage ? (
-              <ScoringPanel key={selectedApplication.id} application={selectedApplication} staffUsers={staffUsers} onSave={handleSave} />
+              <ScoringPanel key={`scoring-${selectedApplication.id}`} application={selectedApplication} staffUsers={staffUsers} onSave={handleSave} />
             ) : (
               <div style={{ border: '1px solid #E7EBF1', borderRadius: 12, background: '#fff', boxShadow: '0 1px 2px rgba(15,23,42,0.04), 0 6px 16px rgba(15,23,42,0.05)', padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94A3B8' }}>
@@ -334,7 +334,7 @@ export default function CandidateDetail() {
 
             {canManage && staffUser && (
               <NotesThread
-                key={selectedApplication.id}
+                key={`notes-${selectedApplication.id}`}
                 applicationId={selectedApplication.id}
                 currentUser={staffUser}
                 staffUsers={staffUsers}
@@ -359,7 +359,7 @@ export default function CandidateDetail() {
               />
             )}
 
-            {canManage && <ActivityLogPanel key={selectedApplication.id} applicationId={selectedApplication.id} />}
+            {canManage && <ActivityLogPanel key={`activity-${selectedApplication.id}`} applicationId={selectedApplication.id} />}
           </div>
         </div>
       )}
