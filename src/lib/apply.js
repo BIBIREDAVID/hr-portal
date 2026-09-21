@@ -18,6 +18,14 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 // Accepts either the pretty slug (e.g. "sales-officer") or the raw job
 // id, so links shared before slugs existed keep working.
+//
+// Explicitly filters to status = 'open' rather than relying solely on
+// RLS: jobs_public_read_open already blocks anonymous/signed-out
+// visitors from non-open jobs, but jobs_staff_read_all grants signed-in
+// admin/recruiter accounts visibility into every job regardless of
+// status — so an HR user previewing their own draft/closed job's apply
+// link while still signed into the dashboard would otherwise see (and
+// be able to submit) a posting that isn't supposed to be live yet.
 export async function getOpenJob(key) {
   const column = UUID_RE.test(key) ? 'id' : 'slug'
   const { data, error } = await supabase
@@ -26,6 +34,7 @@ export async function getOpenJob(key) {
       'id, slug, title, department, description, requirements, custom_fields, status, expires_at, headline, hero_image_url, benefits, tasks, requirements_list, locations, work_mode'
     )
     .eq(column, key)
+    .eq('status', 'open')
     .single()
 
   if (error) throw error
