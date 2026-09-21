@@ -2,9 +2,30 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../lib/AuthContext'
 import { listJobs } from '../../lib/jobs'
-import { listApplications } from '../../lib/applications'
+import { listApplications, STAGES } from '../../lib/applications'
 import { listInterviews } from '../../lib/interviews'
 import TodoWidget from '../../components/TodoWidget'
+
+const FUNNEL_STAGES = STAGES.filter((s) => s !== 'rejected')
+
+// Org-wide version of reports.js's getJobFunnel, computed from the
+// applications already loaded for the stat cards rather than a second
+// query — same shape (count + conversion from the previous stage and
+// from the top of the funnel).
+function computeFunnel(applications) {
+  const counts = Object.fromEntries(STAGES.map((s) => [s, 0]))
+  for (const app of applications) counts[app.stage] = (counts[app.stage] ?? 0) + 1
+
+  const total = applications.length
+  let previousCount = total
+  return FUNNEL_STAGES.map((stage) => {
+    const count = counts[stage]
+    const conversionFromPrevious = previousCount > 0 ? count / previousCount : 0
+    const conversionFromStart = total > 0 ? count / total : 0
+    previousCount = count
+    return { stage, count, conversionFromPrevious, conversionFromStart }
+  })
+}
 
 const cardStyle = {
   border: '1px solid #ECEEF3',
@@ -70,6 +91,7 @@ export default function DashboardHome() {
   const [stats, setStats] = useState(null)
   const [upcomingInterviews, setUpcomingInterviews] = useState(null)
   const [recentApplications, setRecentApplications] = useState(null)
+  const [funnel, setFunnel] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -105,6 +127,7 @@ export default function DashboardHome() {
         })
         setUpcomingInterviews(upcoming)
         setRecentApplications(applications.slice(0, 6))
+        setFunnel(isStaffAdmin ? computeFunnel(applications) : null)
       } catch (err) {
         if (active) setError(err.message)
       }
@@ -185,6 +208,43 @@ export default function DashboardHome() {
               </div>
             )}
           </div>
+
+          {isStaffAdmin && (
+            <div style={{ ...cardStyle, padding: 18 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>Pipeline funnel</div>
+                <Link to="/dashboard/reports" style={{ fontSize: 12, fontWeight: 700, color: '#48418A', textDecoration: 'none' }}>
+                  Full reports →
+                </Link>
+              </div>
+              {funnel === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+              {funnel?.every((s) => s.count === 0) && (
+                <div style={{ fontSize: 12.5, color: '#94A3B8' }}>No applications yet — the funnel fills in once candidates start applying.</div>
+              )}
+              {funnel && !funnel.every((s) => s.count === 0) && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {funnel.map((s) => {
+                    const stage = stageColors[s.stage] ?? stageColors.new
+                    const widthPct = Math.max(Math.round(s.conversionFromStart * 100), s.count > 0 ? 4 : 0)
+                    return (
+                      <div key={s.stage} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 84, fontSize: 12, fontWeight: 600, color: '#475569', flexShrink: 0 }}>
+                          {stageLabels[s.stage] ?? s.stage}
+                        </div>
+                        <div style={{ flex: 1, background: '#F1F3F7', borderRadius: 6, height: 20, position: 'relative', overflow: 'hidden' }}>
+                          <div style={{ width: `${widthPct}%`, background: stage.color, height: '100%', borderRadius: 6, transition: 'width 0.3s' }} />
+                        </div>
+                        <div style={{ width: 84, fontSize: 12, textAlign: 'right', flexShrink: 0 }}>
+                          <span style={{ fontWeight: 700, color: '#0F172A' }}>{s.count}</span>
+                          <span style={{ color: '#94A3B8' }}> · {Math.round(s.conversionFromStart * 100)}%</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {isStaffAdmin && (
             <div style={{ ...cardStyle, padding: 18 }}>
