@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getResumeSignedUrl } from '../lib/resumeStorage'
+import { InlineLoader } from './Spinner'
 
 // `resumePath` is the storage object path (not a URL) stored in
 // candidates.resume_url — the bucket is private, so we exchange it for a
@@ -46,7 +47,7 @@ export default function ResumeViewer({ resumePath }) {
 
       {error && <div style={{ fontSize: 13, color: '#EF4444' }}>{error}</div>}
 
-      {!error && !signedUrl && <div style={{ fontSize: 13, color: '#94A3B8' }}>Loading&hellip;</div>}
+      {!error && !signedUrl && <InlineLoader />}
 
       {signedUrl && isPdf && (
         <iframe title="Resume preview" src={signedUrl} style={{ flex: 1, minHeight: 380, border: 'none', borderRadius: 6 }} />

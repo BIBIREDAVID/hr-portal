@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { listActivityForApplication } from '../lib/activityLog'
+import { InlineLoader } from './Spinner'
 
 function timeAgo(isoString) {
   const seconds = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000)
@@ -29,7 +30,7 @@ export default function ActivityLogPanel({ applicationId }) {
       </div>
 
       {error && <div style={{ fontSize: 12.5, color: '#EF4444' }}>{error}</div>}
-      {entries === null && !error && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+      {entries === null && !error && <InlineLoader />}
       {entries?.length === 0 && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>No activity yet.</div>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 220, overflowY: 'auto' }}>

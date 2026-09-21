@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import { getApplication } from '../../../lib/applications'
+import { PageLoader } from '../../../components/Spinner'
 
 // Notifications reference an application id (mentions/assignments aren't
 // tied to a single candidate view otherwise) — this resolves that id to
@@ -16,7 +17,7 @@ export default function ApplicationRedirect() {
   }, [id])
 
   if (candidateId === undefined) {
-    return <div style={{ padding: 32 }}>Loading&hellip;</div>
+    return <PageLoader />
   }
   if (candidateId === null) {
     return <div style={{ padding: 32, fontSize: 13, color: '#EF4444' }}>That application couldn't be found.</div>

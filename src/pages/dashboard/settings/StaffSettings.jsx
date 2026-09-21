@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../../lib/AuthContext'
 import { STAFF_ROLES, inviteStaff, listStaff, updateStaffRole } from '../../../lib/staff'
+import { InlineLoader } from '../../../components/Spinner'
 
 const inputStyle = {
   padding: '9px 11px',
@@ -166,7 +167,7 @@ export default function StaffSettings() {
       {loadError && <div style={{ fontSize: 12.5, color: '#EF4444', marginBottom: 12 }}>{loadError}</div>}
 
       {!staff ? (
-        <div style={{ fontSize: 13, color: '#94A3B8' }}>Loading&hellip;</div>
+        <InlineLoader />
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {staff.map((person) => {

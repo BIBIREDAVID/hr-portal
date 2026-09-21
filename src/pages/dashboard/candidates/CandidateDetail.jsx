@@ -15,6 +15,7 @@ import InterviewsPanel from '../../../components/InterviewsPanel'
 import ActivityLogPanel from '../../../components/ActivityLogPanel'
 import ChatThread from '../../../components/ChatThread'
 import CandidateNav from '../../../components/CandidateNav'
+import { PageLoader } from '../../../components/Spinner'
 
 // @react-pdf/renderer is sizeable — only load it when someone actually
 // opens the offer letter modal, not on every candidate page visit.
@@ -174,7 +175,7 @@ export default function CandidateDetail() {
   }
 
   if (!candidate || !applications) {
-    return <div style={{ padding: 32 }}>Loading&hellip;</div>
+    return <PageLoader />
   }
 
   return (

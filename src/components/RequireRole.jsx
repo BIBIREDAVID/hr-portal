@@ -1,4 +1,5 @@
 import { useAuth } from '../lib/AuthContext'
+import { PageLoader } from './Spinner'
 
 // Gate for UI restricted to specific staff roles (e.g. Section 7 Phase 2:
 // "Job CRUD UI (admin/recruiter only)"). Renders inline rather than
@@ -8,7 +9,7 @@ export default function RequireRole({ roles, children }) {
   const { staffUser, loading } = useAuth()
 
   if (loading || !staffUser) {
-    return <div style={{ padding: 32 }}>Loading&hellip;</div>
+    return <PageLoader />
   }
 
   if (!roles.includes(staffUser.role)) {

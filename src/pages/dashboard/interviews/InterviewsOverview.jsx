@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listInterviews, updateInterview } from '../../../lib/interviews'
 import { useAuth } from '../../../lib/AuthContext'
+import { InlineLoader } from '../../../components/Spinner'
 
 const statusColors = {
   scheduled: { bg: '#E9E6F2', color: '#3F3D69' },
@@ -116,7 +117,7 @@ export default function InterviewsOverview() {
 
       {error && <div style={{ fontSize: 13, color: '#EF4444' }}>{error}</div>}
 
-      {filteredInterviews === null && <div style={{ fontSize: 13, color: '#94A3B8' }}>Loading&hellip;</div>}
+      {filteredInterviews === null && <InlineLoader />}
       {filteredInterviews?.length === 0 && (
         <div style={{ fontSize: 13, color: '#94A3B8' }}>
           {interviews.length === 0 ? 'No interviews to show.' : 'No interviews match your search.'}

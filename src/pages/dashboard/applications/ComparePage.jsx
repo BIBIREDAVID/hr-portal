@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { listApplicationsByIds, listStaffUsers } from '../../../lib/applications'
+import { PageLoader } from '../../../components/Spinner'
 
 const stageLabels = {
   new: 'New',
@@ -51,7 +52,7 @@ export default function ComparePage() {
   }
 
   if (!applications) {
-    return <div style={{ padding: 32 }}>Loading&hellip;</div>
+    return <PageLoader />
   }
 
   return (

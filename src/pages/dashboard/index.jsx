@@ -5,6 +5,7 @@ import { listJobs } from '../../lib/jobs'
 import { listApplications, STAGES } from '../../lib/applications'
 import { listInterviews } from '../../lib/interviews'
 import TodoWidget from '../../components/TodoWidget'
+import { InlineLoader } from '../../components/Spinner'
 
 const FUNNEL_STAGES = STAGES.filter((s) => s !== 'rejected')
 
@@ -190,7 +191,7 @@ export default function DashboardHome() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div style={{ ...cardStyle, padding: 18 }}>
             <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 12, color: '#0F172A' }}>Upcoming interviews</div>
-            {upcomingInterviews === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+            {upcomingInterviews === null && <InlineLoader />}
             {upcomingInterviews?.length === 0 && (
               <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Nothing scheduled — check the calendar to set one up.</div>
             )}
@@ -217,7 +218,7 @@ export default function DashboardHome() {
                   Full reports →
                 </Link>
               </div>
-              {funnel === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+              {funnel === null && <InlineLoader />}
               {funnel?.every((s) => s.count === 0) && (
                 <div style={{ fontSize: 12.5, color: '#94A3B8' }}>No applications yet — the funnel fills in once candidates start applying.</div>
               )}
@@ -254,7 +255,7 @@ export default function DashboardHome() {
                   View all →
                 </Link>
               </div>
-              {recentApplications === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+              {recentApplications === null && <InlineLoader />}
               {recentApplications?.length === 0 && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>No applications yet.</div>}
               {recentApplications?.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

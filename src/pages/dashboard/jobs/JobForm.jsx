@@ -5,6 +5,7 @@ import { useAuth } from '../../../lib/AuthContext'
 import CustomFieldsEditor from '../../../components/CustomFieldsEditor'
 import LabelListEditor from '../../../components/LabelListEditor'
 import JobPageContent from '../../../components/JobPageContent'
+import { PageLoader } from '../../../components/Spinner'
 
 const emptyJob = {
   title: '',
@@ -149,7 +150,7 @@ export default function JobForm({ mode }) {
   }
 
   if (loading) {
-    return <div style={{ padding: 32 }}>Loading&hellip;</div>
+    return <PageLoader />
   }
 
   return (

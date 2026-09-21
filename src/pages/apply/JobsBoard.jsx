@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { getOpenJobs } from '../../lib/apply'
 import { PublicShell } from '../../components/PublicShell'
+import { InlineLoader } from '../../components/Spinner'
 
 const workModeLabels = { onsite: 'On-site', remote: 'Remote', hybrid: 'Hybrid' }
 
@@ -57,7 +58,7 @@ export default function JobsBoard() {
         </div>
       )}
 
-      {!error && !jobs && <div style={{ fontSize: 13, color: '#94A3B8' }}>Loading&hellip;</div>}
+      {!error && !jobs && <InlineLoader />}
 
       {jobs && jobs.length === 0 && (
         <div style={{ fontSize: 13.5, color: '#94A3B8', textAlign: 'center', padding: '40px 0' }}>

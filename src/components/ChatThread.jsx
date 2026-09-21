@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { InlineLoader } from './Spinner'
 
 const POLL_INTERVAL_MS = 15000
 
@@ -67,7 +68,7 @@ export default function ChatThread({ viewerType, fetchMessages, sendMessage, tit
       <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94A3B8' }}>{title}</div>
 
       <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 260, overflowY: 'auto' }}>
-        {messages === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+        {messages === null && <InlineLoader />}
         {messages?.length === 0 && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>No messages yet.</div>}
         {messages?.map((m) => {
           const isMine = m.sender_type === viewerType

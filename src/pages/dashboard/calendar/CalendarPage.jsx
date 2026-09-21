@@ -1,11 +1,12 @@
 import { useAuth } from '../../../lib/AuthContext'
 import CalendarView from '../../../components/CalendarView'
 import TodoWidget from '../../../components/TodoWidget'
+import { PageLoader } from '../../../components/Spinner'
 
 export default function CalendarPage() {
   const { staffUser } = useAuth()
 
-  if (!staffUser) return <div style={{ padding: 32 }}>Loading&hellip;</div>
+  if (!staffUser) return <PageLoader />
 
   return (
     <div style={{ padding: '24px 28px', display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20, alignItems: 'flex-start' }}>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createTodo, deleteTodo, listTodos, updateTodo } from '../lib/todos'
+import { InlineLoader } from './Spinner'
 
 const inputStyle = {
   padding: '7px 9px',
@@ -76,7 +77,7 @@ export default function TodoWidget({ userId }) {
       {error && <div style={{ fontSize: 12, color: '#EF4444' }}>{error}</div>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        {todos === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+        {todos === null && <InlineLoader />}
         {todos?.length === 0 && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Nothing on your list.</div>}
         {todos?.map((todo) => (
           <div key={todo.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

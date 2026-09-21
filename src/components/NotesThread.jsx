@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createNote, listNotesForApplication, parseMentions } from '../lib/notes'
 import { createNotification } from '../lib/notifications'
+import { InlineLoader } from './Spinner'
 
 function timeAgo(isoString) {
   const seconds = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000)
@@ -95,7 +96,7 @@ export default function NotesThread({ applicationId, currentUser, staffUsers, ca
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 260, overflowY: 'auto' }}>
-        {notes === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+        {notes === null && <InlineLoader />}
         {notes?.length === 0 && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>No notes yet.</div>}
         {notes?.map((note) => (
           <div key={note.id} style={{ display: 'flex', gap: 8 }}>

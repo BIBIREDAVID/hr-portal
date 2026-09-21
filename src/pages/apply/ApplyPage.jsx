@@ -4,6 +4,7 @@ import { getOpenJob, submitApplication } from '../../lib/apply'
 import { uploadResume, validateResumeFile } from '../../lib/resumeStorage'
 import JobPageContent from '../../components/JobPageContent'
 import { PublicShell } from '../../components/PublicShell'
+import { PageLoader } from '../../components/Spinner'
 
 const inputStyle = {
   padding: '11px 13px',
@@ -164,7 +165,7 @@ export default function ApplyPage() {
   if (!job) {
     return (
       <PublicShell>
-        <div style={{ fontSize: 13, color: '#94A3B8' }}>Loading&hellip;</div>
+        <PageLoader />
       </PublicShell>
     )
   }

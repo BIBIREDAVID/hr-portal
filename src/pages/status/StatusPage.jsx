@@ -5,6 +5,7 @@ import { listChatMessagesAsCandidate, sendChatMessageAsCandidate } from '../../l
 import { bookSlotAsCandidate, listOpenSlotsAsCandidate } from '../../lib/scheduling'
 import ChatThread from '../../components/ChatThread'
 import { PublicShell } from '../../components/PublicShell'
+import { InlineLoader } from '../../components/Spinner'
 
 function InterviewSlotPicker({ statusToken, applicationId }) {
   const [slots, setSlots] = useState(null)
@@ -123,7 +124,7 @@ export default function StatusPage() {
           </div>
         )}
 
-        {!error && !applications && <div style={{ fontSize: 13, color: '#94A3B8' }}>Loading&hellip;</div>}
+        {!error && !applications && <InlineLoader />}
 
         {applications && applications.length === 0 && (
           <div style={{ fontSize: 13, color: '#94A3B8' }}>We couldn't find that application.</div>

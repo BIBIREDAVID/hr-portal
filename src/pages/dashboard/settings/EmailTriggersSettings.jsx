@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getStageEmailSettings, setStageEmailSettings } from '../../../lib/emailSettings'
 import { STAGES } from '../../../lib/applications'
+import { PageLoader } from '../../../components/Spinner'
 
 const stageLabels = {
   new: 'New',
@@ -44,7 +45,7 @@ export default function EmailTriggersSettings() {
     return <div style={{ padding: 32, fontSize: 13, color: '#EF4444' }}>{error}</div>
   }
   if (!settings) {
-    return <div style={{ padding: 32 }}>Loading&hellip;</div>
+    return <PageLoader />
   }
 
   return (

@@ -1,12 +1,13 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
+import { PageLoader } from './Spinner'
 
 export default function RequireAuth({ children }) {
   const { session, loading } = useAuth()
   const location = useLocation()
 
   if (loading) {
-    return <div style={{ padding: 32 }}>Loading&hellip;</div>
+    return <PageLoader />
   }
 
   if (!session) {

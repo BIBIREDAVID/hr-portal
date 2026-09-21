@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createInterview, listInterviewsForApplication, updateInterview } from '../lib/interviews'
 import { cancelSlot, listSlotsForApplication, proposeSlots } from '../lib/scheduling'
 import { logActivity } from '../lib/activityLog'
+import { InlineLoader } from './Spinner'
 
 const inputStyle = {
   padding: '7px 9px',
@@ -403,7 +404,7 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
 
       {error && <div style={{ fontSize: 12.5, color: '#EF4444' }}>{error}</div>}
 
-      {interviews === null && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>Loading&hellip;</div>}
+      {interviews === null && <InlineLoader />}
       {interviews?.length === 0 && <div style={{ fontSize: 12.5, color: '#94A3B8' }}>No interviews scheduled yet.</div>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
