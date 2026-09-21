@@ -126,8 +126,10 @@ export default function InterviewsOverview() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {filteredInterviews?.map((interview) => {
-          const canEdit = canManage || interview.interviewer_id === staffUser?.id
+          const isPanelist = interview.panel?.some((p) => p.user?.id === staffUser?.id)
+          const canEdit = canManage || isPanelist
           const colors = statusColors[interview.status] ?? statusColors.scheduled
+          const panelNames = interview.panel?.map((p) => p.user?.name).filter(Boolean).join(', ')
           return (
             <div key={interview.id} style={{ ...cardStyle, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -160,8 +162,9 @@ export default function InterviewsOverview() {
                         <path d="M3 10h18M8 3v4M16 3v4" />
                       </svg>
                       {interview.application.job.title}
+                      {interview.stage?.name ? ` · ${interview.stage.name}` : ''}
                       {interview.scheduled_at ? ` · ${new Date(interview.scheduled_at).toLocaleString()}` : ' · Not scheduled'}
-                      {canManage && interview.interviewer?.name ? ` · Interviewer: ${interview.interviewer.name}` : ''}
+                      {canManage && panelNames ? ` · Panel: ${panelNames}` : ''}
                     </div>
                   </div>
                 </Link>

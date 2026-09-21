@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { createInterview, listInterviewsForApplication, updateInterview } from '../lib/interviews'
+import { assignPanel, createInterview, listInterviewsForApplication, listStagesForJob, updateInterview } from '../lib/interviews'
 import { cancelSlot, listSlotsForApplication, proposeSlots } from '../lib/scheduling'
 import { logActivity } from '../lib/activityLog'
 import { InlineLoader } from './Spinner'
+import InterviewScoring from './InterviewScoring'
 
 const inputStyle = {
   padding: '7px 9px',
@@ -65,8 +66,10 @@ function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplat
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
-  const canEditFeedback = canEditFull || interview.interviewer_id === currentUserId
+  const isPanelist = interview.panel?.some((p) => p.user?.id === currentUserId)
+  const canEditFeedback = canEditFull || isPanelist
   const colors = statusColors[status] ?? statusColors.scheduled
+  const panelNames = interview.panel?.map((p) => p.user?.name).filter(Boolean).join(', ')
 
   async function persist(patch) {
     setError(null)
@@ -85,10 +88,11 @@ function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplat
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 700 }}>
+            {interview.stage?.name ? `${interview.stage.name} · ` : ''}
             {interview.scheduled_at ? new Date(interview.scheduled_at).toLocaleString() : 'Not scheduled'}
           </div>
           <div style={{ fontSize: 11.5, color: '#94A3B8', marginTop: 2 }}>
-            Interviewer: {interview.interviewer?.name ?? 'Unassigned'}
+            Panel: {panelNames || 'Unassigned'}
             {interview.external_link && (
               <>
                 {' · '}
@@ -143,6 +147,10 @@ function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplat
       )}
       {!canEditFeedback && (
         <ScorecardFields template={scorecardTemplate} scorecard={scorecard} editable={false} />
+      )}
+
+      {(isPanelist || canEditFull) && (
+        <InterviewScoring interview={interview} currentUserId={currentUserId} isPanelist={isPanelist} />
       )}
 
       {saving && <div style={{ fontSize: 11, color: '#94A3B8' }}>Saving&hellip;</div>}
@@ -231,9 +239,10 @@ function ProposeTimesForm({ applicationId, staffUsers, currentUserId, onDone }) 
 // 7, items 14/15). Scheduling a new interview is admin/recruiter only;
 // the assigned interviewer can record status/feedback on their own
 // interview. RLS scopes what each role even sees back from the query.
-export default function InterviewsPanel({ applicationId, staffUsers, currentUser, canSchedule, scorecardTemplate }) {
+export default function InterviewsPanel({ applicationId, jobId, staffUsers, currentUser, canSchedule, scorecardTemplate }) {
   const [interviews, setInterviews] = useState(null)
   const [openSlots, setOpenSlots] = useState([])
+  const [stages, setStages] = useState([])
   const [error, setError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [showProposeForm, setShowProposeForm] = useState(false)
@@ -241,17 +250,20 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
   const [scheduledAt, setScheduledAt] = useState('')
   const [mode, setMode] = useState('external')
   const [externalLink, setExternalLink] = useState('')
-  const [interviewerId, setInterviewerId] = useState('')
+  const [stageId, setStageId] = useState('')
+  const [panelIds, setPanelIds] = useState([])
   const [submitting, setSubmitting] = useState(false)
 
   async function refresh() {
     try {
-      const [ints, slots] = await Promise.all([
+      const [ints, slots, jobStages] = await Promise.all([
         listInterviewsForApplication(applicationId),
         canSchedule ? listSlotsForApplication(applicationId) : Promise.resolve([]),
+        jobId && canSchedule ? listStagesForJob(jobId) : Promise.resolve([]),
       ])
       setInterviews(ints)
       setOpenSlots(slots.filter((s) => s.status === 'open'))
+      setStages(jobStages)
     } catch (err) {
       setError(err.message)
     }
@@ -260,7 +272,11 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
   useEffect(() => {
     refresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [applicationId])
+  }, [applicationId, jobId])
+
+  function togglePanelist(userId) {
+    setPanelIds((ids) => (ids.includes(userId) ? ids.filter((id) => id !== userId) : [...ids, userId]))
+  }
 
   async function handleSaveInterview(id, patch) {
     await updateInterview(id, patch)
@@ -275,17 +291,21 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
     setError(null)
     setSubmitting(true)
     try {
-      await createInterview({
+      const interview = await createInterview({
         application_id: applicationId,
         scheduled_at: scheduledAt ? new Date(scheduledAt).toISOString() : null,
         mode,
         external_link: mode === 'external' ? externalLink.trim() || null : null,
-        interviewer_id: interviewerId || null,
+        stage_id: stageId || null,
       })
+      if (panelIds.length > 0) {
+        await assignPanel(interview.id, panelIds)
+      }
       logActivity({ applicationId, actorId: currentUser.id, action: 'scheduled an interview' })
       setScheduledAt('')
       setExternalLink('')
-      setInterviewerId('')
+      setStageId('')
+      setPanelIds([])
       setShowForm(false)
       refresh()
     } catch (err) {
@@ -361,12 +381,12 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
               <input type="datetime-local" style={inputStyle} value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />
             </label>
             <label style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <span style={labelStyle}>Interviewer</span>
-              <select style={inputStyle} value={interviewerId} onChange={(e) => setInterviewerId(e.target.value)}>
-                <option value="">Unassigned</option>
-                {staffUsers.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name}
+              <span style={labelStyle}>Stage</span>
+              <select style={inputStyle} value={stageId} onChange={(e) => setStageId(e.target.value)}>
+                <option value="">No stage</option>
+                {stages.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
                   </option>
                 ))}
               </select>
@@ -391,6 +411,17 @@ export default function InterviewsPanel({ applicationId, staffUsers, currentUser
                 onChange={(e) => setExternalLink(e.target.value)}
               />
             </label>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={labelStyle}>Interview panel</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              {staffUsers.map((u) => (
+                <label key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12.5, color: '#475569' }}>
+                  <input type="checkbox" checked={panelIds.includes(u.id)} onChange={() => togglePanelist(u.id)} />
+                  {u.name}
+                </label>
+              ))}
+            </div>
           </div>
           <button
             type="submit"

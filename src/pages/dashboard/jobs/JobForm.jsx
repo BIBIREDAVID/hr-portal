@@ -4,6 +4,7 @@ import { createJob, getJob, updateJob, uploadJobHeroImage } from '../../../lib/j
 import { useAuth } from '../../../lib/AuthContext'
 import CustomFieldsEditor from '../../../components/CustomFieldsEditor'
 import LabelListEditor from '../../../components/LabelListEditor'
+import JobStagesEditor from '../../../components/JobStagesEditor'
 import JobPageContent from '../../../components/JobPageContent'
 import { PageLoader } from '../../../components/Spinner'
 
@@ -279,6 +280,17 @@ export default function JobForm({ mode }) {
               placeholder="e.g. Communication"
             />
           </div>
+
+          {mode === 'edit' && (
+            <>
+              <div style={{ height: 1, background: '#E7EBF1', margin: '4px 0' }} />
+              <div style={{ fontSize: 13, fontWeight: 800 }}>Interview stages</div>
+              <p style={{ fontSize: 11.5, color: '#94A3B8', margin: '-8px 0 0' }}>
+                Stages candidates move through, with per-stage scoring criteria and weights.
+              </p>
+              <JobStagesEditor jobId={id} />
+            </>
+          )}
 
           <div style={{ height: 1, background: '#E7EBF1', margin: '4px 0' }} />
           <div style={{ fontSize: 13, fontWeight: 800 }}>Job page builder</div>

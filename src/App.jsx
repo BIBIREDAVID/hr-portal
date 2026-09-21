@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './lib/AuthContext'
+import { AdminViewAsProvider } from './lib/AdminViewAsContext'
 import RequireAuth from './components/RequireAuth'
 import RequireRole from './components/RequireRole'
 import DashboardLayout from './components/DashboardLayout'
@@ -19,6 +20,7 @@ import ManualUpload from './pages/dashboard/candidates/ManualUpload'
 import InterviewsOverview from './pages/dashboard/interviews/InterviewsOverview'
 import EmailTriggersSettings from './pages/dashboard/settings/EmailTriggersSettings'
 import StaffSettings from './pages/dashboard/settings/StaffSettings'
+import QuestionLibrary from './pages/dashboard/settings/QuestionLibrary'
 import ReportsPage from './pages/dashboard/reports/ReportsPage'
 import ComparePage from './pages/dashboard/applications/ComparePage'
 import CalendarPage from './pages/dashboard/calendar/CalendarPage'
@@ -27,6 +29,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <AdminViewAsProvider>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
@@ -119,8 +122,17 @@ function App() {
                 </RequireRole>
               }
             />
+            <Route
+              path="settings/questions"
+              element={
+                <RequireRole roles={['admin', 'recruiter']}>
+                  <QuestionLibrary />
+                </RequireRole>
+              }
+            />
           </Route>
         </Routes>
+        </AdminViewAsProvider>
       </AuthProvider>
     </BrowserRouter>
   )

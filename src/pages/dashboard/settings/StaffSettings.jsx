@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../../lib/AuthContext'
+import { useAdminViewAs } from '../../../lib/AdminViewAsContext'
 import { STAFF_ROLES, inviteStaff, listStaff, updateStaffRole } from '../../../lib/staff'
 import { InlineLoader } from '../../../components/Spinner'
 
@@ -22,6 +23,7 @@ const roleBadgeColor = {
 
 export default function StaffSettings() {
   const { staffUser } = useAuth()
+  const { startViewAs } = useAdminViewAs()
   const [staff, setStaff] = useState(null)
   const [loadError, setLoadError] = useState(null)
 
@@ -222,6 +224,14 @@ export default function StaffSettings() {
                       </option>
                     ))}
                   </select>
+                  {staffUser?.role === 'admin' && !isSelf && (
+                    <button
+                      onClick={() => startViewAs({ id: person.id, name: person.name, role: person.role })}
+                      style={{ background: '#fff', border: '1px solid #E7EBF1', borderRadius: 6, padding: '5px 10px', fontSize: 11.5, fontWeight: 600, color: '#475569', cursor: 'pointer' }}
+                    >
+                      View as
+                    </button>
+                  )}
                 </div>
               </div>
             )

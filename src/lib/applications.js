@@ -66,6 +66,29 @@ export async function listApplicationsByIds(ids) {
   return data
 }
 
+// Runs the rule-based CV analysis (src/lib/cvAnalysis.js) against a
+// candidate's parsed resume text and saves the report + suggested
+// questions onto the application. Manual/on-demand from the candidate
+// detail page's "Analyze CV" button.
+export async function analyzeCvForApplication(applicationId) {
+  const { analyzeCv, suggestQuestions } = await import('./cvAnalysis')
+  const { listQuestions } = await import('./questionLibrary')
+
+  const application = await getApplication(applicationId)
+  const resumeText = application.candidate?.resume_parsed?.text || ''
+  const report = analyzeCv(resumeText)
+
+  let libraryQuestions = []
+  try {
+    libraryQuestions = await listQuestions({ roleCategory: application.job?.title })
+  } catch (err) {
+    console.error('question library lookup failed during CV analysis', err)
+  }
+  report.suggestedQuestions = suggestQuestions(report, libraryQuestions)
+
+  return updateApplication(applicationId, { cv_report: report, cv_analyzed_at: new Date().toISOString() })
+}
+
 export async function listStaffUsers() {
   const { data, error } = await supabase.from('users').select('id, name, role').order('name')
   if (error) throw error

@@ -13,6 +13,7 @@ import ScoringPanel from '../../../components/ScoringPanel'
 import NotesThread from '../../../components/NotesThread'
 import InterviewsPanel from '../../../components/InterviewsPanel'
 import ActivityLogPanel from '../../../components/ActivityLogPanel'
+import CvAnalysisPanel from '../../../components/CvAnalysisPanel'
 import ChatThread from '../../../components/ChatThread'
 import CandidateNav from '../../../components/CandidateNav'
 import { PageLoader } from '../../../components/Spinner'
@@ -130,6 +131,10 @@ export default function CandidateDetail() {
   }, [id])
 
   const selectedApplication = applications?.find((a) => a.id === selectedId)
+
+  function handleAnalyzed(updatedApplication) {
+    setApplications((apps) => apps.map((a) => (a.id === updatedApplication.id ? { ...a, ...updatedApplication } : a)))
+  }
 
   async function handleSave(patch) {
     const previous = selectedApplication
@@ -322,9 +327,14 @@ export default function CandidateDetail() {
               </div>
             )}
 
+            {canManage && (
+              <CvAnalysisPanel application={selectedApplication} onAnalyzed={handleAnalyzed} />
+            )}
+
             {staffUser && (
               <InterviewsPanel
                 applicationId={selectedApplication.id}
+                jobId={selectedApplication.job.id}
                 staffUsers={staffUsers}
                 currentUser={staffUser}
                 canSchedule={canManage}

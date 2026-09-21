@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/AuthContext'
+import { useAdminViewAs } from '../lib/AdminViewAsContext'
 import NotificationsBell from './NotificationsBell'
 
 const SIDEBAR_WIDTH = 232
@@ -133,6 +134,7 @@ const linkStyle = ({ isActive }) => ({
 
 export default function DashboardLayout() {
   const { staffUser, signOut } = useAuth()
+  const { viewingAs, stopViewAs } = useAdminViewAs()
   const canManage = staffUser && ['admin', 'recruiter'].includes(staffUser.role)
   const location = useLocation()
 
@@ -210,6 +212,12 @@ export default function DashboardLayout() {
                 Staff
               </NavLink>
             )}
+            {canManage && (
+              <NavLink to="/dashboard/settings/questions" style={linkStyle}>
+                <Icon path={SETTINGS_ICON} />
+                Question library
+              </NavLink>
+            )}
           </nav>
 
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -257,6 +265,31 @@ export default function DashboardLayout() {
       </div>
 
       <div style={{ flex: 1, minWidth: 0, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        {viewingAs && (
+          <div
+            style={{
+              flex: '0 0 auto',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '9px 28px',
+              background: '#3F3D69',
+              color: '#fff',
+              fontSize: 12.5,
+              fontWeight: 600,
+            }}
+          >
+            <span>
+              Viewing as {viewingAs.name} ({viewingAs.role})
+            </span>
+            <button
+              onClick={stopViewAs}
+              style={{ background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: 6, padding: '5px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}
+            >
+              Exit
+            </button>
+          </div>
+        )}
         <div
           style={{
             flex: '0 0 auto',

@@ -54,6 +54,17 @@ export async function createJob(payload, createdBy) {
     .single()
 
   if (error) throw error
+
+  // Seed the job's default 3-stage interview process. Best-effort: a
+  // failure here shouldn't undo job creation — HR can add stages
+  // manually from the job's interview-stages editor if this fails.
+  try {
+    const { seedDefaultStages } = await import('./interviews')
+    await seedDefaultStages(data.id)
+  } catch (err) {
+    console.error('default interview stage seeding failed', err)
+  }
+
   return data
 }
 

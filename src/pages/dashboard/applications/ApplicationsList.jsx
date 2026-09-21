@@ -10,6 +10,7 @@ import { computeMatchScore } from '../../../lib/matchScore'
 import KanbanBoard from '../../../components/KanbanBoard'
 import RejectEmailModal from '../../../components/RejectEmailModal'
 import { useAuth } from '../../../lib/AuthContext'
+import { listApplicationsForViewedStaff, useAdminViewAs } from '../../../lib/AdminViewAsContext'
 
 const stageLabels = {
   new: 'New',
@@ -58,6 +59,7 @@ function avatarColorFor(id) {
 
 export default function ApplicationsList() {
   const { staffUser } = useAuth()
+  const { viewingAs } = useAdminViewAs()
   const canManage = staffUser && ['admin', 'recruiter'].includes(staffUser.role)
   const [view, setView] = useState('kanban')
   const [applications, setApplications] = useState(null)
@@ -85,7 +87,11 @@ export default function ApplicationsList() {
 
   async function refresh() {
     try {
-      const apps = await listApplications(filters)
+      let apps = await listApplications(filters)
+      if (viewingAs) {
+        const allowedIds = new Set(await listApplicationsForViewedStaff(viewingAs.id))
+        apps = apps.filter((a) => allowedIds.has(a.id))
+      }
       setApplications(apps)
       setSelected(new Set())
       // dedupe, preserving first-seen order — backs CandidateNav's prev/next
@@ -98,7 +104,7 @@ export default function ApplicationsList() {
   useEffect(() => {
     refresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters])
+  }, [filters, viewingAs])
 
   async function handleStageChange(applicationId, stage) {
     try {
