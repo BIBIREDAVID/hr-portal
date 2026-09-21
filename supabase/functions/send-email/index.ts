@@ -12,6 +12,7 @@
 // (same as the `apply` function), plus SUPABASE_SERVICE_ROLE_KEY.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { withBanner } from '../_shared/emailBanner.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -103,7 +104,7 @@ Deno.serve(async (req) => {
 
   const { data: applications, error: fetchError } = await supabase
     .from('applications')
-    .select('id, stage, candidate:candidates(id,name,email,status_token), job:jobs(id,title)')
+    .select('id, stage, candidate:candidates(id,name,email,status_token), job:jobs(id,title,hero_image_url)')
     .in('id', applicationIds)
 
   if (fetchError) return json({ error: fetchError.message }, 500)
@@ -120,7 +121,7 @@ Deno.serve(async (req) => {
         status_url: `${siteUrl}/status/${app.candidate.status_token}`,
       }
       const subject = renderTemplate(subjectTemplate, vars)
-      const html = renderTemplate(bodyTemplate, vars).replace(/\n/g, '<br>')
+      const html = withBanner(renderTemplate(bodyTemplate, vars).replace(/\n/g, '<br>'), app.job.hero_image_url)
 
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',

@@ -10,6 +10,7 @@
 // provided automatically by the Supabase Edge Functions runtime.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { withBanner } from '../_shared/emailBanner.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -71,7 +72,7 @@ Deno.serve(async (req) => {
   // Job must exist, be open, and not past its expiry.
   const { data: job, error: jobError } = await supabase
     .from('jobs')
-    .select('id, title, status, expires_at')
+    .select('id, title, status, expires_at, hero_image_url')
     .eq('id', jobId)
     .maybeSingle()
 
@@ -190,7 +191,10 @@ Deno.serve(async (req) => {
           from: fromAddress,
           to: email,
           subject: `We received your application for ${job.title}`,
-          html: `<p>Hi ${name},</p><p>Thanks for applying to <strong>${job.title}</strong>. We'll be in touch as your application moves through our process.</p><p>You can check your status any time: <a href="${statusUrl}">${statusUrl}</a></p>`,
+          html: withBanner(
+            `<p>Hi ${name},</p><p>Thanks for applying to <strong>${job.title}</strong>. We'll be in touch as your application moves through our process.</p><p>You can check your status any time: <a href="${statusUrl}">${statusUrl}</a></p>`,
+            job.hero_image_url
+          ),
         }),
       })
       if (!emailRes.ok) {
