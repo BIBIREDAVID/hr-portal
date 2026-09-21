@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { listJobs } from '../../../lib/jobs'
-import { getJobFunnel, getSourceBreakdown, getSourceDetailBreakdown, getTimeInStageFlags } from '../../../lib/reports'
+import { getJobFunnel, getOverallFunnel, getSourceBreakdown, getSourceDetailBreakdown, getTimeInStageFlags } from '../../../lib/reports'
 
 const stageLabels = {
   new: 'New',
@@ -41,15 +41,12 @@ function FunnelSection() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    listJobs().then((j) => {
-      setJobs(j)
-      if (j.length > 0) setJobId(j[0].id)
-    })
+    listJobs().then(setJobs)
   }, [])
 
   useEffect(() => {
-    if (!jobId) return
-    getJobFunnel(jobId).then(setFunnel).catch((err) => setError(err.message))
+    const fetchFunnel = jobId ? getJobFunnel(jobId) : getOverallFunnel()
+    fetchFunnel.then(setFunnel).catch((err) => setError(err.message))
   }, [jobId])
 
   const maxCount = funnel ? Math.max(funnel.total, 1) : 1
@@ -63,6 +60,7 @@ function FunnelSection() {
           onChange={(e) => setJobId(e.target.value)}
           style={{ padding: '6px 9px', border: '1px solid #E7EBF1', borderRadius: 7, fontSize: 12.5 }}
         >
+          <option value="">All jobs</option>
           {jobs.map((j) => (
             <option key={j.id} value={j.id}>
               {j.title}

@@ -9,14 +9,11 @@ const FUNNEL_STAGES = STAGES.filter((s) => s !== 'rejected')
 // item 19). Aggregated client-side from the raw rows — fine at the
 // scale of one org's applications, and avoids needing a Postgres
 // aggregate RPC for something this simple.
-export async function getJobFunnel(jobId) {
-  const { data, error } = await supabase.from('applications').select('stage').eq('job_id', jobId)
-  if (error) throw error
-
+function buildFunnel(rows) {
   const counts = Object.fromEntries(STAGES.map((s) => [s, 0]))
-  for (const row of data) counts[row.stage] = (counts[row.stage] ?? 0) + 1
+  for (const row of rows) counts[row.stage] = (counts[row.stage] ?? 0) + 1
 
-  const total = data.length
+  const total = rows.length
   let previousCount = total
   const funnel = FUNNEL_STAGES.map((stage) => {
     const count = counts[stage]
@@ -27,6 +24,22 @@ export async function getJobFunnel(jobId) {
   })
 
   return { total, rejected: counts.rejected, funnel }
+}
+
+export async function getJobFunnel(jobId) {
+  const { data, error } = await supabase.from('applications').select('stage').eq('job_id', jobId)
+  if (error) throw error
+  return buildFunnel(data)
+}
+
+// Aggregate funnel across every job — the default view on Reports, so
+// the page shows something meaningful the moment it loads rather than
+// whichever single job happens to sort first (which may have zero
+// applicants).
+export async function getOverallFunnel() {
+  const { data, error } = await supabase.from('applications').select('stage')
+  if (error) throw error
+  return buildFunnel(data)
 }
 
 // Applications sitting in a non-terminal stage longer than
