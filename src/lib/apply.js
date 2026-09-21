@@ -6,7 +6,7 @@ import { supabase } from './supabaseClient'
 export async function getOpenJobs() {
   const { data, error } = await supabase
     .from('jobs')
-    .select('id, title, department, headline, locations, work_mode, created_at')
+    .select('id, slug, title, department, headline, locations, work_mode, created_at')
     .eq('status', 'open')
     .order('created_at', { ascending: false })
 
@@ -14,13 +14,18 @@ export async function getOpenJobs() {
   return data
 }
 
-export async function getOpenJob(jobId) {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+// Accepts either the pretty slug (e.g. "sales-officer") or the raw job
+// id, so links shared before slugs existed keep working.
+export async function getOpenJob(key) {
+  const column = UUID_RE.test(key) ? 'id' : 'slug'
   const { data, error } = await supabase
     .from('jobs')
     .select(
-      'id, title, department, description, requirements, custom_fields, status, expires_at, headline, hero_image_url, benefits, tasks, requirements_list, locations, work_mode'
+      'id, slug, title, department, description, requirements, custom_fields, status, expires_at, headline, hero_image_url, benefits, tasks, requirements_list, locations, work_mode'
     )
-    .eq('id', jobId)
+    .eq(column, key)
     .single()
 
   if (error) throw error

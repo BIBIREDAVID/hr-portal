@@ -21,10 +21,35 @@ export async function getJob(id) {
   return data
 }
 
+function slugify(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
+// Generates a unique, human-readable slug for the apply link (e.g.
+// "sales-officer", or "sales-officer-2" if that's taken). Kept stable
+// after creation — jobs.js never regenerates it on update — so a link
+// someone already shared doesn't break if the title changes later.
+async function generateUniqueSlug(title) {
+  const base = slugify(title) || 'job'
+  const { data, error } = await supabase.from('jobs').select('slug').like('slug', `${base}%`)
+  if (error) throw error
+
+  const taken = new Set(data.map((row) => row.slug))
+  if (!taken.has(base)) return base
+
+  let n = 2
+  while (taken.has(`${base}-${n}`)) n++
+  return `${base}-${n}`
+}
+
 export async function createJob(payload, createdBy) {
+  const slug = await generateUniqueSlug(payload.title)
   const { data, error } = await supabase
     .from('jobs')
-    .insert({ ...payload, created_by: createdBy })
+    .insert({ ...payload, slug, created_by: createdBy })
     .select()
     .single()
 

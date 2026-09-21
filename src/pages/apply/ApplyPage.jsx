@@ -130,7 +130,7 @@ export default function ApplyPage() {
     try {
       const resumePath = await uploadResume(file)
       const result = await submitApplication({
-        job_id: jobId,
+        job_id: job.id,
         name: name.trim(),
         email: email.trim(),
         phone: phone.trim() || null,

@@ -42,7 +42,7 @@ export default function JobsList() {
   }, [])
 
   async function handleCopyLink(job) {
-    const url = `${window.location.origin}/apply/${job.id}`
+    const url = `${window.location.origin}/apply/${job.slug || job.id}`
     try {
       await navigator.clipboard.writeText(url)
       setCopiedId(job.id)

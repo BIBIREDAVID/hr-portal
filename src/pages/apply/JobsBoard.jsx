@@ -72,7 +72,7 @@ export default function JobsBoard() {
             return (
               <Link
                 key={job.id}
-                to={`/apply/${job.id}`}
+                to={`/apply/${job.slug || job.id}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
