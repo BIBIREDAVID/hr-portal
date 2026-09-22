@@ -49,7 +49,7 @@ export default function InterviewScoring({ interview, currentUserId, isPanelist 
   const averages = scores ? averageScoresByCriterion(scores) : {}
 
   function setDraft(label, patch) {
-    setDrafts((d) => ({ ...d, [label]: { ...d[label], ...patch } }))
+    setDrafts((d) => ({ ...d, [label]: { score: '', notes: '', ...d[label], ...patch } }))
   }
 
   async function handleSave(label) {
