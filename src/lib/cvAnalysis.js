@@ -120,11 +120,17 @@ const FLAG_TO_STAGE_NAME = {
   no_employment_history: 'employment_gap',
 }
 
+const GENERIC_TEMPLATE = 'Walk me through your resume and the experience you think is most relevant to this role.'
+
 // Builds suggested questions: for each flag, tries the question library
 // first (role + a fixed flag->stage_name tag convention), falling back to
 // a templated question. `libraryQuestions` is the already-fetched list
 // from questionLibrary.listQuestions({ roleCategory }) so this function
 // stays a pure helper with no data access of its own.
+//
+// A CV with no flags (no gaps/overlaps/formatting issues) still gets
+// suggestions: the role's default library questions, or one generic
+// fallback question, so "clean" CVs aren't left with an empty list.
 export function suggestQuestions(report, libraryQuestions = []) {
   const suggestions = []
   for (const flag of report.flags) {
@@ -136,5 +142,17 @@ export function suggestQuestions(report, libraryQuestions = []) {
       source: fromLibrary ? 'library' : 'generated',
     })
   }
+
+  if (suggestions.length === 0) {
+    const defaults = libraryQuestions.filter((q) => q.is_default_for_role)
+    if (defaults.length > 0) {
+      for (const q of defaults) {
+        suggestions.push({ flagType: 'default_for_role', question: q.question_text, source: 'library' })
+      }
+    } else {
+      suggestions.push({ flagType: 'default_for_role', question: GENERIC_TEMPLATE, source: 'generated' })
+    }
+  }
+
   return suggestions
 }
