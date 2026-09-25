@@ -6,7 +6,7 @@ import { createNotification } from '../../../lib/notifications'
 import { maybeSendStageChangeEmail } from '../../../lib/emailSending'
 import { logActivity } from '../../../lib/activityLog'
 import { listChatMessages, markChatReadByHr, sendChatMessageAsStaff } from '../../../lib/chat'
-import { computeMatchScore } from '../../../lib/matchScore'
+import { computeMatchDetails } from '../../../lib/matchScore'
 import { useAuth } from '../../../lib/AuthContext'
 import ResumeViewer from '../../../components/ResumeViewer'
 import ScoringPanel from '../../../components/ScoringPanel'
@@ -299,15 +299,34 @@ export default function CandidateDetail() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {(() => {
-              const matchScore = computeMatchScore(selectedApplication.job, candidate.resume_parsed?.text)
-              return matchScore != null ? (
+              const details = computeMatchDetails(selectedApplication.job, candidate.resume_parsed?.text)
+              if (!details) return null
+              return (
                 <div
-                  style={{ fontSize: 12, color: '#48418A', background: '#E9E6F2', borderRadius: 8, padding: '8px 12px' }}
-                  title="Simple keyword match against this job's requirements — no AI, informational only"
+                  style={{ display: 'flex', flexDirection: 'column', gap: 8, background: '#E9E6F2', borderRadius: 10, padding: '10px 12px' }}
+                  title="Weighted keyword/phrase match against this job's requirements — no AI, informational only"
                 >
-                  Keyword match: <strong>{matchScore}%</strong>
+                  <div style={{ fontSize: 12, color: '#48418A' }}>
+                    CV match: <strong>{details.score}%</strong>
+                  </div>
+                  {details.seniority && (
+                    <div style={{ fontSize: 11.5, color: details.seniority.meetsRequirement ? '#166534' : '#B45309' }}>
+                      {details.seniority.meetsRequirement ? '✓' : '⚠'} Wants {details.seniority.requiredYears}+ yrs — resume mentions{' '}
+                      {details.seniority.resumeYears != null ? `${details.seniority.resumeYears} yrs` : 'none found'}
+                    </div>
+                  )}
+                  {details.matchedRequiredKeywords.length > 0 && (
+                    <div style={{ fontSize: 11.5, color: '#3F3D69' }}>
+                      Matched requirements: {details.matchedRequiredKeywords.slice(0, 8).join(', ')}
+                    </div>
+                  )}
+                  {details.missingRequiredKeywords.length > 0 && (
+                    <div style={{ fontSize: 11.5, color: '#B45309' }}>
+                      Missing requirements: {details.missingRequiredKeywords.slice(0, 8).join(', ')}
+                    </div>
+                  )}
                 </div>
-              ) : null
+              )
             })()}
             {canManage ? (
               <ScoringPanel key={`scoring-${selectedApplication.id}`} application={selectedApplication} staffUsers={staffUsers} onSave={handleSave} />

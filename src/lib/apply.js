@@ -62,3 +62,18 @@ export async function getApplicationStatus(token) {
   if (error) throw error
   return data
 }
+
+// Public "find my application" flow — lets a candidate get their status
+// link re-emailed by address instead of needing to have kept the
+// original email. Always resolves to a generic message regardless of
+// whether the email matched anything (see resend-status-link function).
+export async function requestStatusLinkByEmail(email) {
+  const { data, error } = await supabase.functions.invoke('resend-status-link', {
+    body: { email },
+  })
+  if (error) {
+    const message = await error.context?.json?.().then((b) => b?.error).catch(() => null)
+    throw new Error(message || error.message)
+  }
+  return data
+}

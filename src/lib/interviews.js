@@ -44,6 +44,21 @@ export async function updateInterview(id, patch) {
   return data
 }
 
+// Manually fires the same reminder sweep pg_cron runs every 15 minutes
+// (see migration 0011 + supabase/functions/send-interview-reminders) —
+// exposed as a dashboard button so HR can trigger it on demand (e.g. to
+// demo the feature, or if the schedule wasn't enabled on this project).
+// Safe to call repeatedly: interviews already reminded about are skipped
+// via `reminder_sent_at`.
+export async function sendInterviewRemindersNow() {
+  const { data, error } = await supabase.functions.invoke('send-interview-reminders', { body: {} })
+  if (error) {
+    const message = await error.context?.json?.().then((b) => b?.error).catch(() => null)
+    throw new Error(message || error.message)
+  }
+  return data
+}
+
 // -------------------------------------------------------------------
 // Interview stages (per job)
 // -------------------------------------------------------------------

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { listInterviews, updateInterview } from '../../../lib/interviews'
+import { listInterviews, sendInterviewRemindersNow, updateInterview } from '../../../lib/interviews'
 import { useAuth } from '../../../lib/AuthContext'
 import { InlineLoader } from '../../../components/Spinner'
 
@@ -56,6 +56,8 @@ export default function InterviewsOverview() {
   const [interviews, setInterviews] = useState(null)
   const [search, setSearch] = useState('')
   const [error, setError] = useState(null)
+  const [reminderStatus, setReminderStatus] = useState(null)
+  const [sendingReminders, setSendingReminders] = useState(false)
 
   async function refresh() {
     try {
@@ -78,6 +80,22 @@ export default function InterviewsOverview() {
     }
   }
 
+  async function handleSendReminders() {
+    setSendingReminders(true)
+    setReminderStatus(null)
+    try {
+      const result = await sendInterviewRemindersNow()
+      setReminderStatus(
+        `Sent: ${result.candidate_emails_sent} candidate email(s), ${result.panelist_emails_sent} panelist email(s) across ${result.interviews_processed} interview(s) in the next 24h.`
+      )
+      refresh()
+    } catch (err) {
+      setReminderStatus(`Failed: ${err.message}`)
+    } finally {
+      setSendingReminders(false)
+    }
+  }
+
   const filteredInterviews = useMemo(() => {
     if (!interviews) return interviews
     const q = search.trim().toLowerCase()
@@ -87,11 +105,36 @@ export default function InterviewsOverview() {
 
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div>
-        <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: '#0F172A' }}>Interviews</h1>
-        <p style={{ fontSize: 13, color: '#94A3B8', margin: '2px 0 0' }}>
-          {canManage ? 'All scheduled interviews' : 'Interviews assigned to you'}
-        </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: '#0F172A' }}>Interviews</h1>
+          <p style={{ fontSize: 13, color: '#94A3B8', margin: '2px 0 0' }}>
+            {canManage ? 'All scheduled interviews' : 'Interviews assigned to you'}
+          </p>
+        </div>
+        {canManage && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+            <button
+              onClick={handleSendReminders}
+              disabled={sendingReminders}
+              title="Emails candidates + panelists for interviews scheduled in the next 24h that haven't been reminded yet. Runs automatically every 15 minutes too."
+              style={{
+                background: '#48418A',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 8,
+                padding: '8px 14px',
+                fontSize: 12.5,
+                fontWeight: 700,
+                cursor: sendingReminders ? 'default' : 'pointer',
+                opacity: sendingReminders ? 0.7 : 1,
+              }}
+            >
+              {sendingReminders ? 'Sending reminders…' : '🔔 Send reminders now'}
+            </button>
+            {reminderStatus && <div style={{ fontSize: 11.5, color: '#64748B', maxWidth: 280, textAlign: 'right' }}>{reminderStatus}</div>}
+          </div>
+        )}
       </div>
 
       <div style={{ position: 'relative', maxWidth: 320 }}>
