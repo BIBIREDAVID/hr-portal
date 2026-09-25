@@ -12,6 +12,7 @@
 // (same as send-email/invite-staff), plus SUPABASE_SERVICE_ROLE_KEY.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { notifyTeams } from '../_shared/teamsNotify.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -160,6 +161,17 @@ Deno.serve(async (req) => {
       actor_id: callerStaff.id,
       action: `Assigned ${(interviewers ?? []).map((i) => i.name).join(', ')} to interview`,
     })
+  }
+
+  const names = (interviewers ?? []).map((i) => i.name).join(', ')
+  if (names) {
+    await notifyTeams(
+      `**${names}** ${
+        (interviewers ?? []).length > 1 ? 'were' : 'was'
+      } assigned to interview **${candidateName}** for **${jobTitle}**${
+        stageName ? ` (${stageName})` : ''
+      } — scheduled for ${when}.`
+    )
   }
 
   return json(results, 200)

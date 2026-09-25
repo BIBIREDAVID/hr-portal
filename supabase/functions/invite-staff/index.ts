@@ -9,6 +9,7 @@
 // runtime.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { notifyTeams } from '../_shared/teamsNotify.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -150,6 +151,8 @@ Deno.serve(async (req) => {
       console.error('welcome email failed', err instanceof Error ? err.message : String(err))
     }
   }
+
+  await notifyTeams(`**${name}** (${email}) was added as a **${role}**.`)
 
   return json({ staff: staffRow, temp_password: tempPassword, email_sent: emailSent }, 201)
 })
