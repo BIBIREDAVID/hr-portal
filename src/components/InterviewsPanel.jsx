@@ -3,6 +3,7 @@ import { assignPanel, createInterview, listInterviewsForApplication, listStagesF
 import { cancelSlot, listSlotsForApplication, proposeSlots } from '../lib/scheduling'
 import { logActivity } from '../lib/activityLog'
 import { inviteStaff } from '../lib/staff'
+import { updateJob } from '../lib/jobs'
 import { InlineLoader } from './Spinner'
 import InterviewScoring from './InterviewScoring'
 
@@ -118,12 +119,87 @@ function AddInterviewerInline({ onAdded }) {
   )
 }
 
-function ScorecardFields({ template, scorecard, editable, onChange }) {
-  if (!template || template.length === 0) return null
+// Inline "+ Add criterion" for the job-level scorecard_template array
+// (the simpler parallel scorecard system alongside stage criteria/
+// interview_scores) — mirrors AddCriterionInline in InterviewScoring.jsx
+// but persists via updateJob since this template lives on the job row.
+function AddScorecardCriterionInline({ onAdd }) {
+  const [open, setOpen] = useState(false)
+  const [label, setLabel] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function handleAdd() {
+    const trimmed = label.trim()
+    if (!trimmed) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      await onAdd(trimmed)
+      setLabel('')
+      setOpen(false)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: '#48418A', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', padding: 0 }}
+      >
+        + Add criterion
+      </button>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <input
+          autoFocus
+          placeholder="Criterion label"
+          value={label}
+          onChange={(e) => setLabel(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              handleAdd()
+            }
+          }}
+          style={{ ...inputStyle, flex: 1, padding: '4px 6px' }}
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={submitting}
+          style={{ background: '#48418A', color: '#fff', border: 'none', borderRadius: 6, padding: '0 10px', fontSize: 11.5, fontWeight: 700, cursor: submitting ? 'default' : 'pointer' }}
+        >
+          {submitting ? 'Adding…' : 'Add'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+        >
+          Cancel
+        </button>
+      </div>
+      {error && <div style={{ fontSize: 11.5, color: '#EF4444' }}>{error}</div>}
+    </div>
+  )
+}
+
+function ScorecardFields({ template, scorecard, editable, onChange, onAddCriterion }) {
+  if ((!template || template.length === 0) && !onAddCriterion) return null
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, border: '1px solid #F1F5F9', borderRadius: 7, padding: 8 }}>
       <div style={labelStyle}>Scorecard</div>
-      {template.map((criterion) => {
+      {(template ?? []).map((criterion) => {
         const value = scorecard?.[criterion.label] ?? ''
         if (!editable) {
           return value ? (
@@ -151,11 +227,12 @@ function ScorecardFields({ template, scorecard, editable, onChange }) {
           </label>
         )
       })}
+      {editable && onAddCriterion && <AddScorecardCriterionInline onAdd={onAddCriterion} />}
     </div>
   )
 }
 
-function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplate, onSave, onCriteriaAdded }) {
+function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplate, onSave, onCriteriaAdded, onAddScorecardCriterion }) {
   const [status, setStatus] = useState(interview.status)
   const [feedback, setFeedback] = useState(interview.feedback ?? '')
   const [scorecard, setScorecard] = useState(interview.scorecard ?? {})
@@ -235,6 +312,7 @@ function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplat
               setScorecard(next)
               persist({ scorecard: next })
             }}
+            onAddCriterion={canEditFull ? onAddScorecardCriterion : undefined}
           />
         </>
       )}
@@ -346,6 +424,7 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
   const [openSlots, setOpenSlots] = useState([])
   const [stages, setStages] = useState([])
   const [localStaffUsers, setLocalStaffUsers] = useState(staffUsers)
+  const [localScorecardTemplate, setLocalScorecardTemplate] = useState(scorecardTemplate ?? [])
   const [error, setError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [showProposeForm, setShowProposeForm] = useState(false)
@@ -381,9 +460,21 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
     setLocalStaffUsers(staffUsers)
   }, [staffUsers])
 
+  useEffect(() => {
+    setLocalScorecardTemplate(scorecardTemplate ?? [])
+  }, [scorecardTemplate])
+
   function handleInterviewerAdded(newStaff) {
     setLocalStaffUsers((list) => [...list, newStaff])
     setPanelIds((ids) => [...ids, newStaff.id])
+  }
+
+  // Appends to the job's scorecard_template — persisted on the jobs row,
+  // so every interview card for this application shares one updated list.
+  async function handleAddScorecardCriterion(label) {
+    const next = [...localScorecardTemplate, { label, weight: 1 }]
+    const updated = await updateJob(jobId, { scorecard_template: next })
+    setLocalScorecardTemplate(updated.scorecard_template)
   }
 
   function togglePanelist(userId) {
@@ -558,9 +649,10 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
             interview={interview}
             canEditFull={canSchedule}
             currentUserId={currentUser.id}
-            scorecardTemplate={scorecardTemplate}
+            scorecardTemplate={localScorecardTemplate}
             onSave={handleSaveInterview}
             onCriteriaAdded={refresh}
+            onAddScorecardCriterion={handleAddScorecardCriterion}
           />
         ))}
       </div>
