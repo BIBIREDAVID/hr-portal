@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { averageScoresByCriterion, listScoresForInterview, recordScore } from '../lib/interviews'
+import { averageScoresByCriterion, listScoresForInterview, recordScore, updateStage } from '../lib/interviews'
 import { InlineLoader } from './Spinner'
 
 const inputStyle = {
@@ -12,11 +12,79 @@ const inputStyle = {
 
 const labelStyle = { fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#94A3B8' }
 
+// Lets an admin/recruiter add a new scoring criterion to this
+// interview's stage without leaving the candidate page — same
+// criteria array JobStagesEditor's CriteriaEditor manages, just a
+// quicker one-field entry point from here.
+function AddCriterionInline({ stageId, existingCriteria, onAdded }) {
+  const [open, setOpen] = useState(false)
+  const [label, setLabel] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const trimmed = label.trim()
+    if (!trimmed) return
+    setSubmitting(true)
+    setError(null)
+    try {
+      await updateStage(stageId, { criteria: [...existingCriteria, { label: trimmed, weight: 1 }] })
+      setLabel('')
+      setOpen(false)
+      onAdded()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        style={{ alignSelf: 'flex-start', background: 'none', border: 'none', color: '#48418A', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', padding: 0 }}
+      >
+        + Add criterion
+      </button>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 6 }}>
+      <input
+        autoFocus
+        placeholder="Criterion label"
+        value={label}
+        onChange={(e) => setLabel(e.target.value)}
+        style={{ ...inputStyle, flex: 1 }}
+      />
+      <button
+        type="submit"
+        disabled={submitting}
+        style={{ background: '#48418A', color: '#fff', border: 'none', borderRadius: 6, padding: '0 10px', fontSize: 11.5, fontWeight: 700, cursor: submitting ? 'default' : 'pointer' }}
+      >
+        {submitting ? 'Adding…' : 'Add'}
+      </button>
+      <button
+        type="button"
+        onClick={() => setOpen(false)}
+        style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+      >
+        Cancel
+      </button>
+      {error && <div style={{ fontSize: 11.5, color: '#EF4444' }}>{error}</div>}
+    </form>
+  )
+}
+
 // Per-criterion scoring for a panelist (Section: interview scoring).
 // Criteria come from the interview's stage; only a current panelist can
 // enter their own score, but averages are visible to anyone who can see
 // the interview at all (RLS already scopes that upstream).
-export default function InterviewScoring({ interview, currentUserId, isPanelist }) {
+export default function InterviewScoring({ interview, currentUserId, isPanelist, canEditCriteria, onCriteriaAdded }) {
   const criteria = interview.stage?.criteria || []
   const [scores, setScores] = useState(null)
   const [drafts, setDrafts] = useState({})
@@ -44,7 +112,8 @@ export default function InterviewScoring({ interview, currentUserId, isPanelist 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interview.id])
 
-  if (criteria.length === 0) return null
+  const canAddCriteria = canEditCriteria && interview.stage_id
+  if (criteria.length === 0 && !canAddCriteria) return null
 
   const averages = scores ? averageScoresByCriterion(scores) : {}
 
@@ -124,6 +193,9 @@ export default function InterviewScoring({ interview, currentUserId, isPanelist 
             </div>
           )
         })
+      )}
+      {canAddCriteria && (
+        <AddCriterionInline stageId={interview.stage_id} existingCriteria={criteria} onAdded={onCriteriaAdded} />
       )}
       {error && <div style={{ fontSize: 11.5, color: '#EF4444' }}>{error}</div>}
     </div>

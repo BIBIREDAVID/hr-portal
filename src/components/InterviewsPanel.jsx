@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { assignPanel, createInterview, listInterviewsForApplication, listStagesForJob, updateInterview } from '../lib/interviews'
 import { cancelSlot, listSlotsForApplication, proposeSlots } from '../lib/scheduling'
 import { logActivity } from '../lib/activityLog'
+import { inviteStaff } from '../lib/staff'
 import { InlineLoader } from './Spinner'
 import InterviewScoring from './InterviewScoring'
 
@@ -20,6 +21,101 @@ const statusColors = {
   completed: { bg: '#E6F7EC', color: '#16A34A' },
   cancelled: { bg: '#E7EBF1', color: '#475569' },
   no_show: { bg: '#FDEAEA', color: '#EF4444' },
+}
+
+// Lets an admin invite a brand-new interviewer without leaving the
+// scheduling form — same inviteStaff() edge function Staff Settings
+// uses, admin-only server-side too. Freshly-added staff are appended to
+// the caller's list and auto-checked onto the panel.
+function AddInterviewerInline({ onAdded }) {
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+  const [tempPassword, setTempPassword] = useState(null)
+
+  // A plain div, not a <form> — this renders inside the outer "Schedule
+  // interview" form, and nested <form> elements are invalid HTML; the
+  // browser collapses them and an inner submit ends up firing the outer
+  // form's onSubmit instead. Enter-to-submit is wired manually below.
+  async function handleAdd() {
+    setSubmitting(true)
+    setError(null)
+    try {
+      const result = await inviteStaff({ name: name.trim(), email: email.trim(), role: 'interviewer' })
+      onAdded(result.staff)
+      setTempPassword(result.temp_password)
+      setName('')
+      setEmail('')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (name.trim() && email.trim()) handleAdd()
+    }
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        style={{ background: 'none', border: 'none', color: '#48418A', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', padding: 0 }}
+      >
+        + Add interviewer
+      </button>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, border: '1px dashed #E7EBF1', borderRadius: 7, padding: 8 }}>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+        <input
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onKeyDown={handleKeyDown}
+          style={{ ...inputStyle, flex: '1 1 140px' }}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={handleKeyDown}
+          style={{ ...inputStyle, flex: '1 1 180px' }}
+        />
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={submitting || !name.trim() || !email.trim()}
+          style={{ background: '#48418A', color: '#fff', border: 'none', borderRadius: 6, padding: '0 12px', fontSize: 12, fontWeight: 700, cursor: submitting ? 'default' : 'pointer' }}
+        >
+          {submitting ? 'Adding…' : 'Add'}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          style={{ background: 'none', border: 'none', color: '#94A3B8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+        >
+          Cancel
+        </button>
+      </div>
+      {error && <div style={{ fontSize: 11.5, color: '#EF4444' }}>{error}</div>}
+      {tempPassword && (
+        <div style={{ fontSize: 11.5, color: '#16A34A' }}>
+          Added — temporary password: <strong>{tempPassword}</strong> (share with them; they can change it after signing in)
+        </div>
+      )}
+    </div>
+  )
 }
 
 function ScorecardFields({ template, scorecard, editable, onChange }) {
@@ -59,7 +155,7 @@ function ScorecardFields({ template, scorecard, editable, onChange }) {
   )
 }
 
-function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplate, onSave }) {
+function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplate, onSave, onCriteriaAdded }) {
   const [status, setStatus] = useState(interview.status)
   const [feedback, setFeedback] = useState(interview.feedback ?? '')
   const [scorecard, setScorecard] = useState(interview.scorecard ?? {})
@@ -150,7 +246,13 @@ function InterviewCard({ interview, canEditFull, currentUserId, scorecardTemplat
       )}
 
       {(isPanelist || canEditFull) && (
-        <InterviewScoring interview={interview} currentUserId={currentUserId} isPanelist={isPanelist} />
+        <InterviewScoring
+          interview={interview}
+          currentUserId={currentUserId}
+          isPanelist={isPanelist}
+          canEditCriteria={canEditFull}
+          onCriteriaAdded={onCriteriaAdded}
+        />
       )}
 
       {saving && <div style={{ fontSize: 11, color: '#94A3B8' }}>Saving&hellip;</div>}
@@ -243,6 +345,7 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
   const [interviews, setInterviews] = useState(null)
   const [openSlots, setOpenSlots] = useState([])
   const [stages, setStages] = useState([])
+  const [localStaffUsers, setLocalStaffUsers] = useState(staffUsers)
   const [error, setError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [showProposeForm, setShowProposeForm] = useState(false)
@@ -273,6 +376,15 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
     refresh()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationId, jobId])
+
+  useEffect(() => {
+    setLocalStaffUsers(staffUsers)
+  }, [staffUsers])
+
+  function handleInterviewerAdded(newStaff) {
+    setLocalStaffUsers((list) => [...list, newStaff])
+    setPanelIds((ids) => [...ids, newStaff.id])
+  }
 
   function togglePanelist(userId) {
     setPanelIds((ids) => (ids.includes(userId) ? ids.filter((id) => id !== userId) : [...ids, userId]))
@@ -345,7 +457,7 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
       {showProposeForm && (
         <ProposeTimesForm
           applicationId={applicationId}
-          staffUsers={staffUsers}
+          staffUsers={localStaffUsers}
           currentUserId={currentUser.id}
           onDone={() => {
             setShowProposeForm(false)
@@ -415,13 +527,14 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <span style={labelStyle}>Interview panel</span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {staffUsers.map((u) => (
+              {localStaffUsers.map((u) => (
                 <label key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12.5, color: '#475569' }}>
                   <input type="checkbox" checked={panelIds.includes(u.id)} onChange={() => togglePanelist(u.id)} />
                   {u.name}
                 </label>
               ))}
             </div>
+            {currentUser.role === 'admin' && <AddInterviewerInline onAdded={handleInterviewerAdded} />}
           </div>
           <button
             type="submit"
@@ -447,6 +560,7 @@ export default function InterviewsPanel({ applicationId, jobId, staffUsers, curr
             currentUserId={currentUser.id}
             scorecardTemplate={scorecardTemplate}
             onSave={handleSaveInterview}
+            onCriteriaAdded={refresh}
           />
         ))}
       </div>
