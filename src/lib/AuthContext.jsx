@@ -96,7 +96,17 @@ export function AuthProvider({ children }) {
     error,
     signInWithPassword: (email, password) =>
       supabase.auth.signInWithPassword({ email, password }),
-    signOut: () => supabase.auth.signOut(),
+    // The default (global) sign-out revokes the session server-side
+    // first, and supabase-js keeps the local session if that request
+    // fails (offline, expired refresh token…) — leaving the user stuck
+    // signed in. Always fall back to clearing this browser's session.
+    signOut: async () => {
+      const { error: signOutError } = await supabase.auth.signOut()
+      if (signOutError) {
+        console.error('global sign-out failed, clearing local session', signOutError)
+        await supabase.auth.signOut({ scope: 'local' })
+      }
+    },
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -336,7 +336,30 @@ export default function DashboardLayout() {
               / {sectionLabel}
             </div>
           </div>
-          <NotificationsBell />
+          {/* Sign out lives here too, not only in the sidebar — collapsing
+              the sidebar (a persisted preference) would otherwise hide the
+              only way to log out. */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <NotificationsBell />
+            {!sidebarOpen && (
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#475569' }}>{staffUser?.name}</span>
+            )}
+            <button
+              onClick={signOut}
+              style={{
+                background: '#fff',
+                border: '1px solid #ECEEF3',
+                borderRadius: 8,
+                padding: '6px 12px',
+                fontSize: 12.5,
+                fontWeight: 600,
+                cursor: 'pointer',
+                color: '#475569',
+              }}
+            >
+              Sign out
+            </button>
+          </div>
         </div>
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: `4px 4px ${FOOTER_HEIGHT}px` }}>
           <Outlet />
