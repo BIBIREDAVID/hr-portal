@@ -8,11 +8,35 @@ export async function getCandidate(id) {
 
 // Duplicate detection by email/phone (Section 6), for the HR manual
 // upload flow — mirrors the check the public `apply` Edge Function does.
+//
+// `_` and `%` are escaped so the case-insensitive match is exact — left
+// raw, ilike treats them as wildcards and "a_b@x.com" would match
+// "aXb@x.com", a different person. Email and phone are separate queries
+// rather than one .or() string, so neither value can break the filter
+// syntax.
+function escapeLike(value) {
+  return value.replace(/[\\%_]/g, (c) => `\\${c}`)
+}
+
 export async function findDuplicateCandidate({ email, phone }) {
-  const filter = phone ? `email.ilike.${email},phone.eq.${phone}` : `email.ilike.${email}`
-  const { data, error } = await supabase.from('candidates').select('*').or(filter).limit(1).maybeSingle()
-  if (error) throw error
-  return data
+  const trimmedEmail = email?.trim()
+  if (trimmedEmail) {
+    const { data, error } = await supabase
+      .from('candidates')
+      .select('*')
+      .ilike('email', escapeLike(trimmedEmail))
+      .limit(1)
+      .maybeSingle()
+    if (error) throw error
+    if (data) return data
+  }
+  const trimmedPhone = phone?.trim()
+  if (trimmedPhone) {
+    const { data, error } = await supabase.from('candidates').select('*').eq('phone', trimmedPhone).limit(1).maybeSingle()
+    if (error) throw error
+    if (data) return data
+  }
+  return null
 }
 
 export async function createCandidate(payload) {

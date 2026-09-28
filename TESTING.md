@@ -9,25 +9,15 @@ Some steps require a resume file — any small PDF or DOCX under 5MB works.
 
 ## 0. One-time setup: three test accounts, three roles
 
-The app has no self-serve signup form and no in-app "change role" UI (by design — Section
-4 restricts writes to `users` to the user's own row, or an admin). The **first person ever
-to sign in becomes `admin` automatically**; everyone after that defaults to `recruiter`.
-To test all three roles you'll need to promote/demote manually via SQL.
+The app has no self-serve signup form. The **first person ever to sign in becomes `admin`
+automatically**; every other staff account is created by an admin, who picks its role.
+Only an admin can change a role — a user can't change their own (migration 0012).
 
-1. Go to your Supabase project → **Authentication → Users** → **Add user** (or **Invite**)
-   three times, e.g.:
-   - `admin@test.com`
-   - `recruiter@test.com`
-   - `interviewer@test.com`
-2. Sign in as `admin@test.com` first in the app (`/login`) — it becomes `admin`
-   automatically. Sign out.
-3. Sign in as `recruiter@test.com` — becomes `recruiter` automatically (not first anymore).
-   Sign out.
-4. Sign in as `interviewer@test.com` — also becomes `recruiter` by default. Fix its role
-   via the Supabase SQL editor:
-   ```sql
-   update users set role = 'interviewer' where email = 'interviewer@test.com';
-   ```
+1. Sign in as your first account in the app (`/login`) — it becomes `admin`.
+2. **Settings → Staff**: invite a `recruiter` and an `interviewer`. Each gets a temporary
+   password (shown on screen, and emailed if Resend is configured).
+3. A login that exists in Supabase Auth but was never invited sees a **"No access"** screen
+   instead of the dashboard.
 
 Keep all three logged in in separate browser profiles/incognito windows if you want to
 test cross-role interactions (e.g. assigning `recruiter` to notify them) without
@@ -256,8 +246,14 @@ These are worth checking by hand, not just trusting the code:
       URL the app generates, which expires).
 - [ ] Confirm `/status/:token` for a random/garbage UUID shows "We couldn't find that
       application" rather than leaking anything.
-- [ ] Submit 6 applications rapidly with the same email to the same public apply page —
-      the 6th+ should be rejected with a rate-limit message (Edge Function's per-email cap).
+- [ ] Submit 6 applications rapidly with the same email to 6 different open jobs — the
+      6th should be rejected with a rate-limit message (Edge Function's per-email cap of 5
+      new applications per hour). Repeat submissions to the *same* job get "You've already
+      applied" and don't change the existing candidate's details.
+- [ ] As an `interviewer`, a resume for a candidate you're not interviewing can't be
+      downloaded; your own candidates' resumes can.
+- [ ] As an `interviewer`, `update users set role = 'admin'` on your own row (via the API)
+      is rejected.
 
 ---
 

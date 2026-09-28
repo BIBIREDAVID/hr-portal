@@ -19,6 +19,7 @@
 // SUPABASE_SERVICE_ROLE_KEY, CRON_SECRET secrets.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { escapeHtml, formatWhen, safeHref } from '../_shared/format.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -117,14 +118,13 @@ Deno.serve(async (req) => {
       const candidate = interview.application?.candidate
       const job = interview.application?.job
       const stageName = interview.stage?.name
-      const when = interview.scheduled_at
-        ? new Date(interview.scheduled_at as string).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
-        : 'soon'
+      const when = formatWhen(interview.scheduled_at as string | null, 'soon')
+      const link = safeHref(interview.external_link)
 
       if (candidate?.email && job) {
-        const statusUrl = `${siteUrl}/status/${candidate.status_token}`
-        const html = `<p>Hi ${candidate.name},</p><p>This is a reminder that your interview for <strong>${job.title}</strong> is coming up on <strong>${when}</strong>${
-          interview.external_link ? ` at <a href="${interview.external_link}">${interview.external_link}</a>` : ''
+        const statusUrl = escapeHtml(`${siteUrl}/status/${candidate.status_token}`)
+        const html = `<p>Hi ${escapeHtml(candidate.name)},</p><p>This is a reminder that your interview for <strong>${escapeHtml(job.title)}</strong> is coming up on <strong>${escapeHtml(when)}</strong>${
+          link ? ` at <a href="${link}">${link}</a>` : ''
         }.</p><p>You can review your application any time: <a href="${statusUrl}">${statusUrl}</a></p>`
         const sent = await sendEmail(candidate.email, `Reminder: your interview for ${job.title} is coming up`, html)
         if (sent) {
@@ -144,9 +144,9 @@ Deno.serve(async (req) => {
         results.panelist_notifications += 1
 
         if (panelist.email) {
-          const html = `<p>Hi ${panelist.name},</p><p>Reminder — you're on the panel for <strong>${candidate?.name ?? 'a candidate'}</strong>'s interview for <strong>${job?.title ?? 'this role'}</strong>${
-            stageName ? ` (${stageName} stage)` : ''
-          } on <strong>${when}</strong>.</p><p><a href="${siteUrl}/dashboard/interviews">View in the HR Interview Portal</a></p>`
+          const html = `<p>Hi ${escapeHtml(panelist.name)},</p><p>Reminder — you're on the panel for <strong>${escapeHtml(candidate?.name ?? 'a candidate')}</strong>'s interview for <strong>${escapeHtml(job?.title ?? 'this role')}</strong>${
+            stageName ? ` (${escapeHtml(stageName)} stage)` : ''
+          } on <strong>${escapeHtml(when)}</strong>.</p><p><a href="${escapeHtml(siteUrl)}/dashboard/interviews">View in the HR Interview Portal</a></p>`
           const sent = await sendEmail(panelist.email, `Reminder: interview for ${job?.title ?? 'a role'} on ${when}`, html)
           if (sent) results.panelist_emails_sent += 1
         }

@@ -3,15 +3,13 @@ import { supabase } from './supabaseClient'
 
 const AuthContext = createContext(undefined)
 
-// Ensures a `users` row exists for this authenticated Supabase Auth user.
-// The very first user ever to sign in becomes 'admin'; everyone after
-// that defaults to 'recruiter'.
-//
-// Known limitation: if two people sign in for the very first time at
-// the same moment, both could see an empty `users` table and both be
-// inserted as 'admin'. Acceptable for Phase 1 (single-org bootstrap);
-// revisit with a server-side lock (e.g. an Edge Function) if that race
-// becomes a real concern.
+// Loads the `users` row for this authenticated Supabase Auth user.
+// The very first user ever to sign in bootstraps the org as 'admin'.
+// After that, staff rows are only ever created by an admin through the
+// `invite-staff` Edge Function — an Auth login with no staff row (e.g.
+// someone who self-signed-up via the public Auth API) gets no access,
+// and the DB trigger from migration 0012 rejects a client-side insert
+// anyway.
 async function syncStaffUser(authUser) {
   const { data: existing, error: selectError } = await supabase
     .from('users')
@@ -28,7 +26,12 @@ async function syncStaffUser(authUser) {
 
   if (countError) throw countError
 
-  const role = count === 0 ? 'admin' : 'recruiter'
+  if (count > 0) {
+    const err = new Error("Your login isn't linked to a staff account yet. Ask an admin to invite you.")
+    throw err
+  }
+
+  const role = 'admin'
   const name =
     authUser.user_metadata?.full_name || authUser.email.split('@')[0]
 
@@ -53,6 +56,7 @@ export function AuthProvider({ children }) {
 
     async function handleSession(nextSession) {
       setSession(nextSession)
+      setError(null)
       if (!nextSession) {
         setStaffUser(null)
         setLoading(false)

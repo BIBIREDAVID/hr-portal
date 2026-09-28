@@ -47,7 +47,7 @@ Full build spec (schema, phases, security checklist): [hr-interview-portal-spec.
    - `RESEND_API_KEY` (or `POSTMARK_API_KEY`) and `EMAIL_FROM_ADDRESS` — for transactional email
 
 2. **Run the Supabase migrations** — applies all schema changes in `supabase/migrations/`
-   (`0001_init.sql` through `0008_scorecards_scheduling_source.sql`):
+   (`0001_init.sql` through `0012_security_fixes.sql`):
 
    ```bash
    supabase link --project-ref <your-project-ref>
@@ -69,9 +69,14 @@ Full build spec (schema, phases, security checklist): [hr-interview-portal-spec.
    ```
 
 5. **Log in.** There's no self-serve signup. The **first person ever to sign in becomes
-   `admin`**; everyone after defaults to `recruiter` (promote to `interviewer` via SQL —
-   see [TESTING.md](./TESTING.md) §0 for the full walkthrough of setting up all three
-   roles and testing every feature end to end).
+   `admin`**; everyone else is added by an admin from **Settings → Staff** (the
+   `invite-staff` function), which sets their role. A login with no staff profile gets a
+   "No access" screen. Also turn off public sign-ups in Supabase (**Authentication →
+   Providers → Email → Allow new users to sign up**) so strangers can't create logins at all.
+   See [TESTING.md](./TESTING.md) §0 for setting up all three roles.
+
+6. **Optional: `APP_TIMEZONE` secret** — an IANA timezone (e.g. `Africa/Lagos`) used for
+   interview times in emails and Teams posts. Defaults to UTC; times are always labelled.
 
 ## Project structure
 

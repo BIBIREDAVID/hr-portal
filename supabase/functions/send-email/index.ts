@@ -13,6 +13,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { withBanner } from '../_shared/emailBanner.ts'
+import { escapeHtml } from '../_shared/format.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -120,8 +121,15 @@ Deno.serve(async (req) => {
         stage: stageLabels[app.stage] ?? app.stage,
         status_url: `${siteUrl}/status/${app.candidate.status_token}`,
       }
+      // Subject is plain text. The body is HTML, so both the template
+      // text and the substituted values (candidate names come from the
+      // public apply form) are escaped before newlines become <br>.
       const subject = renderTemplate(subjectTemplate, vars)
-      const html = withBanner(renderTemplate(bodyTemplate, vars).replace(/\n/g, '<br>'), app.job.hero_image_url)
+      const htmlVars = Object.fromEntries(Object.entries(vars).map(([k, v]) => [k, escapeHtml(v)]))
+      const html = withBanner(
+        renderTemplate(escapeHtml(bodyTemplate), htmlVars).replace(/\n/g, '<br>'),
+        app.job.hero_image_url
+      )
 
       const resendResponse = await fetch('https://api.resend.com/emails', {
         method: 'POST',

@@ -111,6 +111,17 @@ Deno.serve(async (req) => {
     .single()
   if (interviewError) return json({ error: interviewError.message }, 500)
 
+  // Panel membership is what lets an interviewer record scores
+  // (interview_scores_own_insert) and what the dashboard shows as
+  // "Panel" — mirror the slot's interviewer onto it, same as the
+  // dashboard's schedule form does via assignPanel.
+  if (slot.interviewer_id) {
+    const { error: panelError } = await supabase
+      .from('interview_panel')
+      .insert({ interview_id: interview.id, user_id: slot.interviewer_id })
+    if (panelError) console.error('adding booked interviewer to panel failed', panelError.message)
+  }
+
   await supabase.from('activity_log').insert({
     application_id: applicationId,
     actor_id: null,

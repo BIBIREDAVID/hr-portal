@@ -10,6 +10,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { notifyTeams } from '../_shared/teamsNotify.ts'
+import { escapeHtml, escapeTeams } from '../_shared/format.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -128,7 +129,7 @@ Deno.serve(async (req) => {
   if (resendKey && fromAddress) {
     try {
       const loginUrl = `${Deno.env.get('PUBLIC_SITE_URL') ?? ''}/login`
-      const html = `<p>Hi ${name},</p><p>An account has been created for you on the HR Interview Portal with the <strong>${role}</strong> role.</p><p>Sign in at <a href="${loginUrl}">${loginUrl}</a> with:</p><p>Email: <strong>${email}</strong><br>Temporary password: <strong>${tempPassword}</strong></p><p>You'll be able to change your password after signing in.</p>`
+      const html = `<p>Hi ${escapeHtml(name)},</p><p>An account has been created for you on the HR Interview Portal with the <strong>${escapeHtml(role)}</strong> role.</p><p>Sign in at <a href="${escapeHtml(loginUrl)}">${escapeHtml(loginUrl)}</a> with:</p><p>Email: <strong>${escapeHtml(email)}</strong><br>Temporary password: <strong>${escapeHtml(tempPassword)}</strong></p><p>You'll be able to change your password after signing in.</p>`
       const emailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -152,7 +153,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  await notifyTeams(`**${name}** (${email}) was added as a **${role}**.`)
+  await notifyTeams(`**${escapeTeams(name)}** (${escapeTeams(email)}) was added as a **${role}**.`)
 
   return json({ staff: staffRow, temp_password: tempPassword, email_sent: emailSent }, 201)
 })

@@ -32,6 +32,7 @@ const navItems = [
   {
     to: '/dashboard/jobs',
     label: 'Jobs',
+    managersOnly: true,
     icon: (
       <>
         <rect x="3" y="7" width="18" height="13" rx="2" />
@@ -73,6 +74,7 @@ const navItems = [
   {
     to: '/dashboard/reports',
     label: 'Reports',
+    managersOnly: true,
     icon: <path d="M4 20V10M12 20V4M20 20v-7" />,
   },
 ]
@@ -194,7 +196,9 @@ export default function DashboardLayout() {
           </div>
 
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {navItems.map((item) => (
+            {/* Jobs/Reports are route-guarded to admin/recruiter (see App.jsx),
+                so hide them rather than link interviewers to "Not authorized". */}
+            {navItems.filter((item) => canManage || !item.managersOnly).map((item) => (
               <NavLink key={item.to} to={item.to} end={item.end} style={linkStyle}>
                 <Icon path={item.icon} />
                 {item.label}

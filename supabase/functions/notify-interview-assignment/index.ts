@@ -13,6 +13,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { notifyTeams } from '../_shared/teamsNotify.ts'
+import { escapeHtml, escapeTeams, formatWhen, safeHref } from '../_shared/format.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -104,12 +105,8 @@ Deno.serve(async (req) => {
   const candidateName = interview.application?.candidate?.name ?? 'the candidate'
   const jobTitle = interview.application?.job?.title ?? 'this role'
   const stageName = interview.stage?.name
-  const when = interview.scheduled_at
-    ? new Date(interview.scheduled_at as string).toLocaleString('en-US', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : 'a time to be confirmed'
+  const when = formatWhen(interview.scheduled_at as string | null, 'a time to be confirmed')
+  const link = safeHref(interview.external_link)
 
   const results = { notified: 0, email_sent: 0, failed: [] as { user_id: string; error: string }[] }
 
@@ -124,11 +121,11 @@ Deno.serve(async (req) => {
       results.notified += 1
 
       if (resendKey && fromAddress) {
-        const html = `<p>Hi ${interviewer.name},</p><p>You've been assigned to interview <strong>${candidateName}</strong> for <strong>${jobTitle}</strong>${
-          stageName ? ` — <strong>${stageName}</strong> stage` : ''
-        }.</p><p>Scheduled for: ${when}</p>${
-          interview.external_link ? `<p>Link: <a href="${interview.external_link}">${interview.external_link}</a></p>` : ''
-        }<p><a href="${siteUrl}/dashboard/interviews">View in the HR Interview Portal</a></p>`
+        const html = `<p>Hi ${escapeHtml(interviewer.name)},</p><p>You've been assigned to interview <strong>${escapeHtml(candidateName)}</strong> for <strong>${escapeHtml(jobTitle)}</strong>${
+          stageName ? ` — <strong>${escapeHtml(stageName)}</strong> stage` : ''
+        }.</p><p>Scheduled for: ${escapeHtml(when)}</p>${
+          link ? `<p>Link: <a href="${link}">${link}</a></p>` : ''
+        }<p><a href="${escapeHtml(siteUrl)}/dashboard/interviews">View in the HR Interview Portal</a></p>`
 
         const emailRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
@@ -163,13 +160,13 @@ Deno.serve(async (req) => {
     })
   }
 
-  const names = (interviewers ?? []).map((i) => i.name).join(', ')
+  const names = (interviewers ?? []).map((i) => escapeTeams(i.name)).join(', ')
   if (names) {
     await notifyTeams(
       `**${names}** ${
         (interviewers ?? []).length > 1 ? 'were' : 'was'
-      } assigned to interview **${candidateName}** for **${jobTitle}**${
-        stageName ? ` (${stageName})` : ''
+      } assigned to interview **${escapeTeams(candidateName)}** for **${escapeTeams(jobTitle)}**${
+        stageName ? ` (${escapeTeams(stageName)})` : ''
       } — scheduled for ${when}.`
     )
   }

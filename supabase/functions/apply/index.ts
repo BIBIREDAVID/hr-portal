@@ -11,6 +11,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { withBanner } from '../_shared/emailBanner.ts'
+import { escapeHtml, escapeLike } from '../_shared/format.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -81,54 +82,56 @@ Deno.serve(async (req) => {
     return json({ error: 'This job is no longer accepting applications' }, 400)
   }
 
-  // Minimal abuse guard: cap submissions per email per rolling window.
-  // A real deployment should also rate-limit by IP/fingerprint at the
-  // edge (e.g. Cloudflare Turnstile or a WAF rule) — this is a
-  // best-effort backstop, not a substitute for that.
-  const since = new Date(Date.now() - RATE_LIMIT_WINDOW_HOURS * 60 * 60 * 1000).toISOString()
-  const { count: recentCount, error: rateError } = await supabase
-    .from('candidates')
-    .select('id', { count: 'exact', head: true })
-    .eq('email', email)
-    .gte('created_at', since)
-
-  if (rateError) return json({ error: rateError.message }, 500)
-  if ((recentCount ?? 0) >= RATE_LIMIT_MAX_SUBMISSIONS) {
-    return json({ error: 'Too many submissions from this email address. Please try again later.' }, 429)
-  }
-
-  // Duplicate detection by email or phone (Section 6). Reuse the
-  // existing candidate row and refresh it with the latest submitted
-  // data — candidate/HR-entered data always wins over what was parsed
-  // or stored previously (Section 9).
-  const duplicateFilter = phone ? `email.ilike.${email},phone.eq.${phone}` : `email.ilike.${email}`
+  // Duplicate detection (Section 6). Public submissions match on EMAIL
+  // ONLY, exactly (wildcards escaped): matching on phone would link a
+  // stranger's submission to an existing candidate and then email that
+  // candidate's status link to the stranger's address. Phone-based
+  // duplicates are still surfaced to HR in the manual-upload flow.
   const { data: existingCandidate, error: findError } = await supabase
     .from('candidates')
-    .select('id')
-    .or(duplicateFilter)
+    .select('id, status_token')
+    .ilike('email', escapeLike(email))
+    .order('created_at', { ascending: true })
     .limit(1)
     .maybeSingle()
   if (findError) return json({ error: findError.message }, 500)
+
+  if (existingCandidate) {
+    // Everything below is checked BEFORE any write, so a rejected
+    // submission never modifies the existing candidate.
+    const { data: priorApplication, error: priorError } = await supabase
+      .from('applications')
+      .select('id')
+      .eq('candidate_id', existingCandidate.id)
+      .eq('job_id', jobId)
+      .maybeSingle()
+    if (priorError) return json({ error: priorError.message }, 500)
+    if (priorApplication) {
+      return json({ error: 'You\'ve already applied to this job' }, 409)
+    }
+
+    // Minimal abuse guard: cap new applications per email per rolling
+    // window. A real deployment should also rate-limit by IP at the edge
+    // (e.g. Cloudflare Turnstile or a WAF rule) — this is a best-effort
+    // backstop, not a substitute for that.
+    const since = new Date(Date.now() - RATE_LIMIT_WINDOW_HOURS * 60 * 60 * 1000).toISOString()
+    const { count: recentCount, error: rateError } = await supabase
+      .from('applications')
+      .select('id', { count: 'exact', head: true })
+      .eq('candidate_id', existingCandidate.id)
+      .gte('created_at', since)
+    if (rateError) return json({ error: rateError.message }, 500)
+    if ((recentCount ?? 0) >= RATE_LIMIT_MAX_SUBMISSIONS) {
+      return json({ error: 'Too many submissions from this email address. Please try again later.' }, 429)
+    }
+  }
 
   let candidateId: string
   let statusToken: string
 
   if (existingCandidate) {
     candidateId = existingCandidate.id
-    const { data: updated, error: updateError } = await supabase
-      .from('candidates')
-      .update({
-        name,
-        phone,
-        resume_url: resumePath,
-        resume_parsed: resumeParsed,
-        portfolio_url: portfolioUrl,
-      })
-      .eq('id', candidateId)
-      .select('status_token')
-      .single()
-    if (updateError) return json({ error: updateError.message }, 500)
-    statusToken = updated.status_token
+    statusToken = existingCandidate.status_token
   } else {
     const { data: inserted, error: insertError } = await supabase
       .from('candidates')
@@ -166,6 +169,18 @@ Deno.serve(async (req) => {
     return json({ error: applicationError.message }, 500)
   }
 
+  // Only now that the new application exists, refresh the existing
+  // candidate with the latest submitted data (Section 9: submitted data
+  // wins over older/parsed data). Optional fields left blank this time
+  // keep their previous values instead of being wiped.
+  if (existingCandidate) {
+    const patch: Record<string, unknown> = { name, resume_url: resumePath, resume_parsed: resumeParsed }
+    if (phone) patch.phone = phone
+    if (portfolioUrl) patch.portfolio_url = portfolioUrl
+    const { error: updateError } = await supabase.from('candidates').update(patch).eq('id', candidateId)
+    if (updateError) console.error('candidate refresh after new application failed', updateError.message)
+  }
+
   // actor_id is null — this action was taken by the candidate, not a
   // staff member.
   await supabase.from('activity_log').insert({
@@ -192,7 +207,7 @@ Deno.serve(async (req) => {
           to: email,
           subject: `We received your application for ${job.title}`,
           html: withBanner(
-            `<p>Hi ${name},</p><p>Thanks for applying to <strong>${job.title}</strong>. We'll be in touch as your application moves through our process.</p><p>You can check your status any time: <a href="${statusUrl}">${statusUrl}</a></p>`,
+            `<p>Hi ${escapeHtml(name)},</p><p>Thanks for applying to <strong>${escapeHtml(job.title)}</strong>. We'll be in touch as your application moves through our process.</p><p>You can check your status any time: <a href="${escapeHtml(statusUrl)}">${escapeHtml(statusUrl)}</a></p>`,
             job.hero_image_url
           ),
         }),

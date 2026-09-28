@@ -16,6 +16,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { withBanner } from '../_shared/emailBanner.ts'
+import { escapeHtml, escapeLike } from '../_shared/format.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -66,7 +67,13 @@ Deno.serve(async (req) => {
   const { data: candidate, error: findError } = await supabase
     .from('candidates')
     .select('id, name, email, status_token')
-    .ilike('email', email)
+    // Exact case-insensitive match (wildcards escaped) — an unescaped "_"
+    // would let "a_b@x.com" pull up, and email, a different candidate's
+    // link. limit(1) keeps maybeSingle() from erroring if HR created a
+    // second row with a differently-cased copy of the same address.
+    .ilike('email', escapeLike(email))
+    .order('created_at', { ascending: true })
+    .limit(1)
     .maybeSingle()
 
   if (findError) return json({ error: findError.message }, 500)
@@ -104,7 +111,7 @@ Deno.serve(async (req) => {
           to: candidate.email,
           subject: 'Your application status link',
           html: withBanner(
-            `<p>Hi ${candidate.name},</p><p>Here's your link to check the status of your application(s) any time:</p><p><a href="${statusUrl}">${statusUrl}</a></p><p>If you didn't request this, you can safely ignore this email.</p>`,
+            `<p>Hi ${escapeHtml(candidate.name)},</p><p>Here's your link to check the status of your application(s) any time:</p><p><a href="${escapeHtml(statusUrl)}">${escapeHtml(statusUrl)}</a></p><p>If you didn't request this, you can safely ignore this email.</p>`,
             null
           ),
         }),

@@ -3,6 +3,8 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { listApplicationsByIds, listStaffUsers } from '../../../lib/applications'
 import { PageLoader } from '../../../components/Spinner'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 const stageLabels = {
   new: 'New',
   screening: 'Screening',
@@ -18,7 +20,13 @@ const stageLabels = {
 // via URL or opened straight from a bookmark.
 export default function ComparePage() {
   const [searchParams] = useSearchParams()
-  const ids = (searchParams.get('ids') ?? '').split(',').filter(Boolean)
+  // Drop malformed ids (e.g. a hand-edited or truncated URL) instead of
+  // passing them to Postgres, which fails the whole query with a raw
+  // "invalid input syntax for type uuid" error.
+  const ids = (searchParams.get('ids') ?? '')
+    .split(',')
+    .map((id) => id.trim())
+    .filter((id) => UUID_RE.test(id))
   const [applications, setApplications] = useState(null)
   const [staffUsers, setStaffUsers] = useState([])
   const [error, setError] = useState(null)
@@ -53,6 +61,18 @@ export default function ComparePage() {
 
   if (!applications) {
     return <PageLoader />
+  }
+
+  if (applications.length === 0) {
+    return (
+      <div style={{ padding: 32, fontSize: 13, color: '#94A3B8' }}>
+        None of the selected applications could be found. Pick them again from the{' '}
+        <Link to="/dashboard/applications" style={{ color: '#48418A' }}>
+          Applications
+        </Link>{' '}
+        table.
+      </div>
+    )
   }
 
   return (
