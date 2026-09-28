@@ -57,6 +57,20 @@ export async function submitApplication(payload) {
   return data
 }
 
+// Finishes a returning candidate's application from the emailed
+// confirmation link (see the `confirm-application` Edge Function).
+// Resolves to { status_token, application_id }.
+export async function confirmApplication(token) {
+  const { data, error } = await supabase.functions.invoke('confirm-application', {
+    body: { token },
+  })
+  if (error) {
+    const message = await error.context?.json?.().then((b) => b?.error).catch(() => null)
+    throw new Error(message || error.message)
+  }
+  return data
+}
+
 export async function getApplicationStatus(token) {
   const { data, error } = await supabase.rpc('get_application_status', { p_token: token })
   if (error) throw error

@@ -10,6 +10,7 @@ import JobsList from './pages/dashboard/jobs/JobsList'
 import JobForm from './pages/dashboard/jobs/JobForm'
 import ApplyPage from './pages/apply/ApplyPage'
 import JobsBoard from './pages/apply/JobsBoard'
+import ConfirmApplicationPage from './pages/apply/ConfirmApplicationPage'
 import StatusPage from './pages/status/StatusPage'
 import StatusLookupPage from './pages/status/StatusLookupPage'
 import PrivacyPage from './pages/PrivacyPage'
@@ -35,6 +36,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/apply" element={<JobsBoard />} />
           <Route path="/apply/:jobId" element={<ApplyPage />} />
+          <Route path="/confirm/:token" element={<ConfirmApplicationPage />} />
           <Route path="/status" element={<StatusLookupPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/status/:token" element={<StatusPage />} />

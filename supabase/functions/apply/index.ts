@@ -30,6 +30,84 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const RATE_LIMIT_WINDOW_HOURS = 1
 const RATE_LIMIT_MAX_SUBMISSIONS = 5
 
+type Submission = {
+  name: string
+  phone: string | null
+  portfolioUrl: string | null
+  resumePath: string
+  resumeParsed: unknown
+  customFieldResponses: unknown
+  sourceDetail: string | null
+}
+
+// A submission whose email matches an existing candidate. Knowing an
+// email address doesn't prove you own it, so nothing is created or
+// changed yet and no status link is returned: the submission is parked
+// in pending_applications and a confirmation link goes to the address
+// ON FILE. The confirm-application function finishes the job once that
+// link is clicked (see migration 0013).
+async function holdForEmailConfirmation(
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  { candidate, job, submission }: { candidate: { id: string; name: string; email: string }; job: { id: string; title: string; hero_image_url: string | null }; submission: Submission }
+) {
+  const resendKey = Deno.env.get('RESEND_API_KEY')
+  const fromAddress = Deno.env.get('EMAIL_FROM_ADDRESS')
+  if (!resendKey || !fromAddress) {
+    // Without email there's no way to verify the submitter — refuse
+    // rather than fall back to trusting the address.
+    return json({ error: "We couldn't verify your email right now. Please try again later." }, 503)
+  }
+
+  const { data: pending, error: pendingError } = await supabase
+    .from('pending_applications')
+    .insert({
+      candidate_id: candidate.id,
+      job_id: job.id,
+      name: submission.name,
+      phone: submission.phone,
+      portfolio_url: submission.portfolioUrl,
+      resume_url: submission.resumePath,
+      resume_parsed: submission.resumeParsed,
+      custom_field_responses: submission.customFieldResponses,
+      source_detail: submission.sourceDetail,
+    })
+    .select('id, token')
+    .single()
+  if (pendingError) return json({ error: pendingError.message }, 500)
+
+  const confirmUrl = `${Deno.env.get('PUBLIC_SITE_URL') ?? ''}/confirm/${pending.token}`
+  try {
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: fromAddress,
+        to: candidate.email,
+        subject: `Confirm your application for ${job.title}`,
+        html: withBanner(
+          `<p>Hi ${escapeHtml(candidate.name)},</p><p>We received an application for <strong>${escapeHtml(job.title)}</strong> using this email address. Because you've applied with us before, please confirm it was you:</p><p><a href="${escapeHtml(confirmUrl)}">Confirm my application</a></p><p>The link expires in 7 days. If you didn't apply, ignore this email — nothing will be submitted and your details won't change.</p>`,
+          job.hero_image_url
+        ),
+      }),
+    })
+    if (!emailRes.ok) {
+      console.error('confirmation email rejected', emailRes.status, await emailRes.text())
+      await supabase.from('pending_applications').delete().eq('id', pending.id)
+      return json({ error: "We couldn't send your confirmation email. Please try again later." }, 502)
+    }
+  } catch (err) {
+    console.error('confirmation email failed', err)
+    await supabase.from('pending_applications').delete().eq('id', pending.id)
+    return json({ error: "We couldn't send your confirmation email. Please try again later." }, 502)
+  }
+
+  await supabase.from('email_log').insert({ candidate_id: candidate.id, type: 'application_confirmation' })
+
+  // Never includes the existing candidate's status token.
+  return json({ pending_confirmation: true }, 202)
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -89,7 +167,7 @@ Deno.serve(async (req) => {
   // duplicates are still surfaced to HR in the manual-upload flow.
   const { data: existingCandidate, error: findError } = await supabase
     .from('candidates')
-    .select('id, status_token')
+    .select('id, name, email')
     .ilike('email', escapeLike(email))
     .order('created_at', { ascending: true })
     .limit(1)
@@ -110,13 +188,14 @@ Deno.serve(async (req) => {
       return json({ error: 'You\'ve already applied to this job' }, 409)
     }
 
-    // Minimal abuse guard: cap new applications per email per rolling
-    // window. A real deployment should also rate-limit by IP at the edge
-    // (e.g. Cloudflare Turnstile or a WAF rule) — this is a best-effort
+    // Minimal abuse guard: cap submissions per email per rolling window
+    // (each one sends a confirmation email to the address on file). A
+    // real deployment should also rate-limit by IP at the edge (e.g.
+    // Cloudflare Turnstile or a WAF rule) — this is a best-effort
     // backstop, not a substitute for that.
     const since = new Date(Date.now() - RATE_LIMIT_WINDOW_HOURS * 60 * 60 * 1000).toISOString()
     const { count: recentCount, error: rateError } = await supabase
-      .from('applications')
+      .from('pending_applications')
       .select('id', { count: 'exact', head: true })
       .eq('candidate_id', existingCandidate.id)
       .gte('created_at', since)
@@ -124,32 +203,30 @@ Deno.serve(async (req) => {
     if ((recentCount ?? 0) >= RATE_LIMIT_MAX_SUBMISSIONS) {
       return json({ error: 'Too many submissions from this email address. Please try again later.' }, 429)
     }
+
+    return await holdForEmailConfirmation(supabase, {
+      candidate: existingCandidate,
+      job,
+      submission: { name, phone, portfolioUrl, resumePath, resumeParsed, customFieldResponses, sourceDetail },
+    })
   }
 
-  let candidateId: string
-  let statusToken: string
-
-  if (existingCandidate) {
-    candidateId = existingCandidate.id
-    statusToken = existingCandidate.status_token
-  } else {
-    const { data: inserted, error: insertError } = await supabase
-      .from('candidates')
-      .insert({
-        name,
-        email,
-        phone,
-        resume_url: resumePath,
-        resume_parsed: resumeParsed,
-        source: 'public_application',
-        portfolio_url: portfolioUrl,
-      })
-      .select('id, status_token')
-      .single()
-    if (insertError) return json({ error: insertError.message }, 500)
-    candidateId = inserted.id
-    statusToken = inserted.status_token
-  }
+  const { data: inserted, error: insertError } = await supabase
+    .from('candidates')
+    .insert({
+      name,
+      email,
+      phone,
+      resume_url: resumePath,
+      resume_parsed: resumeParsed,
+      source: 'public_application',
+      portfolio_url: portfolioUrl,
+    })
+    .select('id, status_token')
+    .single()
+  if (insertError) return json({ error: insertError.message }, 500)
+  const candidateId: string = inserted.id
+  const statusToken: string = inserted.status_token
 
   const { data: application, error: applicationError } = await supabase
     .from('applications')
@@ -169,24 +246,12 @@ Deno.serve(async (req) => {
     return json({ error: applicationError.message }, 500)
   }
 
-  // Only now that the new application exists, refresh the existing
-  // candidate with the latest submitted data (Section 9: submitted data
-  // wins over older/parsed data). Optional fields left blank this time
-  // keep their previous values instead of being wiped.
-  if (existingCandidate) {
-    const patch: Record<string, unknown> = { name, resume_url: resumePath, resume_parsed: resumeParsed }
-    if (phone) patch.phone = phone
-    if (portfolioUrl) patch.portfolio_url = portfolioUrl
-    const { error: updateError } = await supabase.from('candidates').update(patch).eq('id', candidateId)
-    if (updateError) console.error('candidate refresh after new application failed', updateError.message)
-  }
-
   // actor_id is null — this action was taken by the candidate, not a
   // staff member.
   await supabase.from('activity_log').insert({
     application_id: application.id,
     actor_id: null,
-    action: existingCandidate ? 'submitted a new application (existing candidate)' : 'submitted this application',
+    action: 'submitted this application',
   })
 
   // Best-effort acknowledgment email — a failure here shouldn't fail the

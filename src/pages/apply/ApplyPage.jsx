@@ -56,6 +56,7 @@ export default function ApplyPage() {
 
   const [job, setJob] = useState(null)
   const [loadError, setLoadError] = useState(null)
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -141,6 +142,12 @@ export default function ApplyPage() {
         custom_field_responses: customValues,
         source_detail: sourceDetail,
       })
+      // Returning candidates confirm by email first (see the `apply`
+      // Edge Function) — no status link is issued until they do.
+      if (result.pending_confirmation) {
+        setAwaitingConfirmation(true)
+        return
+      }
       navigate(`/status/${result.status_token}`)
     } catch (err) {
       setSubmitError(err.message)
@@ -166,6 +173,24 @@ export default function ApplyPage() {
     return (
       <PublicShell>
         <PageLoader />
+      </PublicShell>
+    )
+  }
+
+  if (awaitingConfirmation) {
+    return (
+      <PublicShell maxWidth={560}>
+        <div style={{ ...cardStyle, padding: 40, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ fontSize: 30 }}>✉</div>
+          <h1 style={{ fontSize: 18, margin: 0 }}>Check your email to finish applying</h1>
+          <p style={{ fontSize: 13.5, color: '#475569', margin: 0, lineHeight: 1.6 }}>
+            You've applied with us before, so we've sent a confirmation link to the email address we have on file.
+            Click it within 7 days to submit your application for <strong>{job.title}</strong>.
+          </p>
+          <Link to="/apply" style={{ fontSize: 14, color: '#48418A', fontWeight: 700, textDecoration: 'none' }}>
+            ← View all open positions
+          </Link>
+        </div>
       </PublicShell>
     )
   }

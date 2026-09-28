@@ -246,10 +246,13 @@ These are worth checking by hand, not just trusting the code:
       URL the app generates, which expires).
 - [ ] Confirm `/status/:token` for a random/garbage UUID shows "We couldn't find that
       application" rather than leaking anything.
-- [ ] Submit 6 applications rapidly with the same email to 6 different open jobs — the
-      6th should be rejected with a rate-limit message (Edge Function's per-email cap of 5
-      new applications per hour). Repeat submissions to the *same* job get "You've already
-      applied" and don't change the existing candidate's details.
+- [ ] Apply to a *second* job with an email that has applied before — you see "Check your
+      email to finish applying", no status page. Nothing appears in the dashboard and the
+      candidate's details don't change until the emailed link (`/confirm/:token`) is
+      clicked; then the application appears and you land on the status page.
+- [ ] Repeat that 6 times within an hour — the 6th is rejected with a rate-limit message
+      (5 confirmation emails per address per hour). Resubmitting to a job you've already
+      applied to gets "You've already applied".
 - [ ] As an `interviewer`, a resume for a candidate you're not interviewing can't be
       downloaded; your own candidates' resumes can.
 - [ ] As an `interviewer`, `update users set role = 'admin'` on your own row (via the API)
